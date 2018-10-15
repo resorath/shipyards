@@ -1,0 +1,94 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8" />
+    <title>Plunk</title>
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+
+    var config = {
+        type: Phaser.AUTO,
+        width: 1000,
+        height: 700,
+        physics: {
+            default: 'arcade',
+            arcade: {
+                debug: true
+            }
+        },
+        scene: {
+            preload: preload,
+            create: create,
+            update: update
+        }
+    };
+
+    var game = new Phaser.Game(config);
+
+    var shipyards = {
+        red: {
+            health: 20
+        },
+        blue: {
+            health: 20
+        }
+    }
+
+    var ships = {
+        red: {},
+        blue: {},
+
+    };
+
+
+    function preload()
+    {
+        this.load.image('shipyard', 'assets/shipyard.png');
+        this.load.image('fighter', 'assets/fighter.png')
+
+    }
+
+    function create()
+    {
+        shipyards.red.shipyard = this.add.sprite(900, 250, 'shipyard');
+
+        ships.red = this.physics.add.group();
+        var rfighter = ships.red.create(800, 250, 'fighter');
+        rfighter.setScale(0.3);
+        rfighter.setVelocityX(-50);
+
+        shipyards.blue.shipyard = this.add.sprite(100, 250, 'shipyard');
+
+        ships.blue = this.physics.add.group();
+        var bfighter = ships.blue.create(200, 270, 'fighter');
+        bfighter.setScale(0.3);
+        bfighter.rotation += Math.PI;
+        bfighter.setVelocityX(50);
+
+        //this.physics.add.collider(rfighter, bfighter);
+
+    }
+
+    function update()
+    {  
+        shipyards.red.shipyard.rotation += 0.001;
+        shipyards.blue.shipyard.rotation -= 0.001;
+
+        var distance = Phaser.Math.Distance.Between(ships.red.getChildren()[0].x, ships.red.getChildren()[0].y, ships.blue.getChildren()[0].x, ships.blue.getChildren()[0].y);
+
+        console.log(distance);
+
+    }
+
+</script>
+
+</body>
+</html>
