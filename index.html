@@ -2,34 +2,63 @@
 <html lang="en"> 
 <head> 
     <meta charset="UTF-8" />
-    <title>Plunk</title>
+    <title>Shipyards</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js"></script>
     <style type="text/css">
         body {
             margin: 0;
         }
+
+        canvas{
+            display:block;
+            margin: 0;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
     </style>
 </head>
 <body>
 
 <script type="text/javascript">
 
+    function resize() {
+        var canvas = document.querySelector("canvas");
+        var windowWidth = window.innerWidth;
+        var windowHeight = window.innerHeight;
+        var windowRatio = windowWidth / windowHeight;
+        var gameRatio = config.width / config.height;
+
+        if(windowRatio < gameRatio){
+            canvas.style.width = windowWidth + "px";
+            canvas.style.height = (windowWidth / gameRatio) + "px";
+        }
+        else {
+            canvas.style.width = (windowHeight * gameRatio) + "px";
+            canvas.style.height = windowHeight + "px";
+        }
+    }
+
+
+    let battle = new Phaser.Scene('Battle');
+
     var config = {
         type: Phaser.AUTO,
-        width: 1000,
+        width: 1400,
         height: 700,
         physics: {
             default: 'arcade',
             arcade: {
-                debug: true
+                debug: false
             }
         },
-        scene: {
-            preload: preload,
-            create: create,
-            update: update
-        }
+        scene: battle
     };
+
+
 
     var game = new Phaser.Game(config);
 
@@ -48,45 +77,88 @@
 
     };
 
+    var weapons = {
+        lasers: {}
+    }
 
-    function preload()
+
+    battle.preload = function()
     {
         this.load.image('shipyard', 'assets/shipyard.png');
-        this.load.image('fighter', 'assets/fighter.png')
+        this.load.image('fighter', 'assets/fighter.png');
+        this.load.image('laser', 'assets/redlaser.png')
 
     }
 
-    function create()
+    battle.create = function()
     {
-        shipyards.red.shipyard = this.add.sprite(900, 250, 'shipyard');
+        shipyards.red.shipyard = this.add.sprite(1300, 250, 'shipyard');
 
         ships.red = this.physics.add.group();
-        var rfighter = ships.red.create(800, 250, 'fighter');
+        var rfighter = ships.red.create(1200, 240, 'fighter');
         rfighter.setScale(0.3);
         rfighter.setVelocityX(-50);
 
         shipyards.blue.shipyard = this.add.sprite(100, 250, 'shipyard');
 
         ships.blue = this.physics.add.group();
-        var bfighter = ships.blue.create(200, 270, 'fighter');
+        var bfighter = ships.blue.create(200, 280, 'fighter');
         bfighter.setScale(0.3);
         bfighter.rotation += Math.PI;
         bfighter.setVelocityX(50);
 
-        //this.physics.add.collider(rfighter, bfighter);
+        weapons.lasers = this.physics.add.group();
+
 
     }
 
-    function update()
+    var cooldown = false;
+    battle.update = function()
     {  
         shipyards.red.shipyard.rotation += 0.001;
         shipyards.blue.shipyard.rotation -= 0.001;
 
         var distance = Phaser.Math.Distance.Between(ships.red.getChildren()[0].x, ships.red.getChildren()[0].y, ships.blue.getChildren()[0].x, ships.blue.getChildren()[0].y);
 
-        console.log(distance);
+        if(distance < 400 && !cooldown)
+        {
+            cooldown = true;
+
+            var ship1 = ships.red.getChildren()[0];
+            var ship2 = ships.blue.getChildren()[0];
+
+            this.fireLaser(ship1, ship2);
+
+            window.setTimeout(function() {
+                cooldown = false;
+            }, 500);
+
+        }
 
     }
+
+    battle.fireLaser = function(origin, target)
+    {
+        var laser = weapons.lasers.create(origin.x, origin.y, 'laser');
+
+        var angle = Phaser.Math.Angle.BetweenPoints(origin, target);
+
+        laser.rotation = angle;
+
+        laser.setScale(0.4);
+
+        var velocity = this.physics.velocityFromRotation(angle, 600);
+
+        laser.setVelocity(velocity.x, velocity.y)
+
+    }
+
+
+
+    window.onload = function() {
+        resize();
+    }
+    window.addEventListener("resize", resize, false);
 
 </script>
 
