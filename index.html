@@ -110,7 +110,8 @@
         weapons.lasers = this.physics.add.group();
 
 
-        var laser = new weapons.Laser(rfighter, bfighter, 500, this);
+        var laser = new weapons.Laser(rfighter, bfighter, 500, 500, this);
+        var laser = new weapons.Laser(bfighter, rfighter, 500, 300, this);
 
 
     }
@@ -129,11 +130,12 @@
 
     weapons.Laser = class
     {
-        constructor(origin, target, range, sceneContext)
+        constructor(origin, target, range, speed, sceneContext)
         {
             this.origin = origin;
             this.target = target;
             this.range = range;
+            this.speed = speed;
             this.sceneContext = sceneContext;
 
             this.isFiring = false;
@@ -151,7 +153,7 @@
         {
             console.log("Fire!");
             this.isFiring = true;
-            this.timer = this.sceneContext.time.addEvent({ delay: 500, callback: this.fire, callbackScope: this, repeat: 999});
+            this.timer = this.sceneContext.time.addEvent({ delay: this.speed, callback: this.fire, callbackScope: this, repeat: 999});
 
         }
 
