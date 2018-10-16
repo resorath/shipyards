@@ -169,7 +169,7 @@
             console.log("Is firing!");
             var laser = weapons.lasers.create(this.origin.x, this.origin.y, 'laser');
 
-            var angle = Phaser.Math.Angle.BetweenPoints(this.origin, this.target);
+            var angle = Phaser.Math.Angle.BetweenPoints(this.origin, this.target) + (Phaser.Math.Between(-1, 1) / 35);
 
             laser.rotation = angle;
 
