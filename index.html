@@ -44,6 +44,7 @@
 
 
     let battle = new Phaser.Scene('Battle');
+    var emitter = new Phaser.Events.EventEmitter();
 
     var config = {
         type: Phaser.AUTO,
@@ -78,7 +79,6 @@
     };
 
     var weapons = {
-        lasers: {}
     }
 
 
@@ -110,46 +110,90 @@
         weapons.lasers = this.physics.add.group();
 
 
+        var laser = new weapons.Laser(rfighter, bfighter, 500, this);
+
+
     }
 
     var cooldown = false;
     battle.update = function()
     {  
+        emitter.emit('update');
+
         shipyards.red.shipyard.rotation += 0.001;
         shipyards.blue.shipyard.rotation -= 0.001;
 
-        var distance = Phaser.Math.Distance.Between(ships.red.getChildren()[0].x, ships.red.getChildren()[0].y, ships.blue.getChildren()[0].x, ships.blue.getChildren()[0].y);
 
-        if(distance < 400 && !cooldown)
-        {
-            cooldown = true;
-
-            var ship1 = ships.red.getChildren()[0];
-            var ship2 = ships.blue.getChildren()[0];
-
-            this.fireLaser(ship1, ship2);
-
-            window.setTimeout(function() {
-                cooldown = false;
-            }, 500);
-
-        }
 
     }
 
-    battle.fireLaser = function(origin, target)
+    weapons.Laser = class
     {
-        var laser = weapons.lasers.create(origin.x, origin.y, 'laser');
+        constructor(origin, target, range, sceneContext)
+        {
+            this.origin = origin;
+            this.target = target;
+            this.range = range;
+            this.sceneContext = sceneContext;
 
-        var angle = Phaser.Math.Angle.BetweenPoints(origin, target);
+            this.isFiring = false;
 
-        laser.rotation = angle;
+            emitter.on('update', this.update, this);
 
-        laser.setScale(0.4);
+        }
 
-        var velocity = this.physics.velocityFromRotation(angle, 600);
+        destroy()
+        {
+            emitter.removeListener('update', this.update);
+        }
 
-        laser.setVelocity(velocity.x, velocity.y)
+        beginFire()
+        {
+            console.log("Fire!");
+            this.isFiring = true;
+            this.timer = this.sceneContext.time.addEvent({ delay: 500, callback: this.fire, callbackScope: this, repeat: 999});
+
+        }
+
+        stopFire()
+        {
+            console.log("Stop Fire!");
+            this.timer.destroy();
+            this.isFiring = false;
+        }
+
+        fire()
+        {
+            console.log("Is firing!");
+            var laser = weapons.lasers.create(this.origin.x, this.origin.y, 'laser');
+
+            var angle = Phaser.Math.Angle.BetweenPoints(this.origin, this.target);
+
+            laser.rotation = angle;
+
+            laser.setScale(0.4);
+
+            var velocity = this.sceneContext.physics.velocityFromRotation(angle, 600);
+
+            laser.setVelocity(velocity.x, velocity.y);
+        }
+
+        update()
+        {
+            var distance = Phaser.Math.Distance.Between(this.origin.x, this.origin.y, this.target.x, this.target.y);
+
+            if(distance < this.range && !this.isFiring)
+            {
+                this.beginFire();
+            }
+            
+            if(distance > this.range && this.isFiring)
+            {
+                this.stopFire();
+            }
+
+        }
+        
 
     }
 
