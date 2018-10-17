@@ -96,6 +96,8 @@
 
     battle.create = function()
     {
+        weapons.lasers = this.physics.add.group();
+
         shipyards.red.shipyard = this.add.sprite(1300, 250, 'shipyard');
 
         ships.red = this.physics.add.group();
@@ -118,11 +120,12 @@
         bfighter2.setVelocityX(50);
         bfighter2.name = "2"
 
-        weapons.lasers = this.physics.add.group();
+        
 
 
-        var laser = new weapons.Laser(rfighter, this, { range: 500, speed: 300, lifetime: 1000});
-        //var laser = new weapons.Laser(bfighter, rfighter, this);
+        new weapons.Laser(rfighter, this, { range: 500, cooldown: 300, lifetime: 1000});
+        new weapons.Laser(bfighter, this, { range: 500, cooldown: 300, lifetime: 1000});
+        new weapons.Laser(bfighter2, this, { range: 500, cooldown: 300, lifetime: 1000});
 
 
     }
@@ -219,12 +222,14 @@
 
             options = setDefaults(options, {
                 range: 500,
-                speed: 500,
-                lifetime: 1000
+                cooldown: 500,
+                lifetime: 1000,
+                velocity: 600
             });
 
             this.range = options.range;
-            this.speed = options.speed;
+            this.cooldown = options.cooldown;
+            this.velocity = options.velocity;
             this.lifetime = options.lifetime;
 
             this.audio = {
@@ -246,7 +251,7 @@
         beginFire()
         {
             this.isFiring = true;
-            this.timer = this.sceneContext.time.addEvent({ delay: this.speed, callback: this.fire, callbackScope: this, repeat: 999});
+            this.timer = this.sceneContext.time.addEvent({ delay: this.cooldown, callback: this.fire, callbackScope: this, repeat: 999});
 
         }
 
@@ -264,7 +269,7 @@
             var angle = Phaser.Math.Angle.BetweenPoints(this.origin, this.target) + (rand.realInRange(-0.1, 0.1));
             laser.rotation = angle;
             laser.setScale(0.4);
-            var velocity = this.sceneContext.physics.velocityFromRotation(angle, 600);
+            var velocity = this.sceneContext.physics.velocityFromRotation(angle, this.velocity);
             laser.setVelocity(velocity.x, velocity.y);
 
             this.sceneContext.time.addEvent({ delay: this.lifetime, callback: function() {
