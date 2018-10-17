@@ -8,6 +8,7 @@
     <style type="text/css">
         body {
             margin: 0;
+            background-color: #000000;
         }
 
         canvas{
@@ -82,6 +83,10 @@
     var weapons = {
     }
 
+    var craft = {
+
+    }
+
 
     battle.preload = function()
     {
@@ -101,13 +106,18 @@
         shipyards.red.shipyard = this.add.sprite(1300, 250, 'shipyard');
 
         ships.red = this.physics.add.group();
+        ships.blue = this.physics.add.group();
+
+
+
+
+        shipyards.blue.shipyard = this.add.sprite(100, 250, 'shipyard');
+
+        /*
         var rfighter = ships.red.create(1200, 240, 'fighter');
         rfighter.setScale(0.3);
         rfighter.setVelocityX(-50);
 
-        shipyards.blue.shipyard = this.add.sprite(100, 250, 'shipyard');
-
-        ships.blue = this.physics.add.group();
         var bfighter = ships.blue.create(400, 280, 'fighter');
         bfighter.setScale(0.3);
         bfighter.rotation += Math.PI;
@@ -118,14 +128,25 @@
         bfighter2.setScale(0.3);
         bfighter2.rotation += Math.PI;
         bfighter2.setVelocityX(50);
-        bfighter2.name = "2"
+        bfighter2.name = "2"*/
 
-        
+        var r = new craft.Fighter("red", 240, {
+            weapons:[ 
+                new weapons.Laser(this, { range: 500, cooldown: 100, lifetime: 1000 }),
+                new weapons.Laser(this, { range: 800, cooldown: 500, lifetime: 2000 })
+            ]
+        })
+       
+
+        new craft.Fighter("blue", 400, {})
+        new craft.Fighter("blue", 50, {})
 
 
-        new weapons.Laser(rfighter, this, { range: 500, cooldown: 300, lifetime: 1000});
+
+
+        /*new weapons.Laser(rfighter, this, { range: 500, cooldown: 300, lifetime: 1000});
         new weapons.Laser(bfighter, this, { range: 500, cooldown: 300, lifetime: 1000});
-        new weapons.Laser(bfighter2, this, { range: 500, cooldown: 300, lifetime: 1000});
+        new weapons.Laser(bfighter2, this, { range: 500, cooldown: 300, lifetime: 1000});*/
 
 
     }
@@ -210,12 +231,55 @@
         return closestship_ship;
     }
 
+    craft.Fighter = class
+    {
+        constructor(team, startY, options)
+        {
+            this.team = team;
+            this.Y = startY;
+
+            options = setDefaults(options, {
+                scale: 0.3,
+                velocity: 50,
+                direction: 0,
+                name: '',
+                weapons: [],
+                X: 1200
+            })
+
+            // hack for now
+            if(this.team == "blue")
+            {
+                options.direction = Math.PI;
+                options.X = 50
+            }
+            if(this.team == "red")
+            {
+                options.velocity = options.velocity *  -1;
+            }
+
+            this.sprite = ships[this.team].create(options.X, this.Y, 'fighter');
+            this.sprite.setScale(options.scale);
+            this.sprite.rotation += options.direction;
+            this.sprite.setVelocityX(options.velocity);
+            this.sprite.name = options.name;
+
+
+            var that = this;
+            options.weapons.forEach(function(weapon){
+                weapon.origin = that.sprite
+            })
+
+
+        }
+
+    }
+
     weapons.Laser = class
     {
-        constructor(origin, sceneContext, options)
+        constructor(sceneContext, options)
         {
-
-            this.origin = origin;
+            this.origin = null; // needs to be set when weapon is mounted
             this.target = null;
             this.sceneContext = sceneContext;
 
