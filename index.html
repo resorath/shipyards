@@ -87,7 +87,10 @@
     {
         this.load.image('shipyard', 'assets/shipyard.png');
         this.load.image('fighter', 'assets/fighter.png');
-        this.load.image('laser', 'assets/redlaser.png')
+        this.load.image('laser', 'assets/redlaser.png');
+
+        this.load.audio('laserimpact', 'assets/laser_impact.wav');
+        this.load.audio('laserfire', 'assets/laser_fire.wav');
 
     }
 
@@ -140,8 +143,13 @@
             this.sceneContext = sceneContext;
             this.lifetime = lifetime;
 
+            this.audio = {
+                laserimpact: this.sceneContext.sound.add('laserimpact', { volume: 0.2}),
+                laserfire: this.sceneContext.sound.add('laserfire')
+            }
+
             this.isFiring = false;
-            
+
             emitter.on('update', this.update, this);
 
         }
@@ -153,7 +161,6 @@
 
         beginFire()
         {
-            console.log("Fire!");
             this.isFiring = true;
             this.timer = this.sceneContext.time.addEvent({ delay: this.speed, callback: this.fire, callbackScope: this, repeat: 999});
 
@@ -161,14 +168,12 @@
 
         stopFire()
         {
-            console.log("Stop Fire!");
             this.timer.destroy();
             this.isFiring = false;
         }
 
         fire()
         {
-            console.log("Is firing!");
             var laser = weapons.lasers.create(this.origin.x, this.origin.y, 'laser');
 
             var angle = Phaser.Math.Angle.BetweenPoints(this.origin, this.target) + (rand.realInRange(-0.1, 0.1));
@@ -181,12 +186,15 @@
                 laser.destroy();
             }});
 
-            this.sceneContext.physics.add.overlap(laser, this.target, this.impact, null, this.sceneContext)
+            this.sceneContext.physics.add.overlap(laser, this.target, this.impact, null, this);
+
+            this.audio.laserfire.play();
         }
 
         impact(laser, target)
         {
-            laser.disableBody(true, true);
+            laser.destroy();
+            this.audio.laserimpact.play();
 
         }
 
