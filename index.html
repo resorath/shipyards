@@ -106,16 +106,23 @@
         shipyards.blue.shipyard = this.add.sprite(100, 250, 'shipyard');
 
         ships.blue = this.physics.add.group();
-        var bfighter = ships.blue.create(200, 280, 'fighter');
+        var bfighter = ships.blue.create(400, 280, 'fighter');
         bfighter.setScale(0.3);
         bfighter.rotation += Math.PI;
         bfighter.setVelocityX(50);
+        bfighter.name = "1"
+
+        var bfighter2 = ships.blue.create(50, 80, 'fighter');
+        bfighter2.setScale(0.3);
+        bfighter2.rotation += Math.PI;
+        bfighter2.setVelocityX(50);
+        bfighter2.name = "2"
 
         weapons.lasers = this.physics.add.group();
 
 
-        var laser = new weapons.Laser(rfighter, bfighter, 500, 500, 1000, this);
-        var laser = new weapons.Laser(bfighter, rfighter, 500, 300, 1000, this);
+        var laser = new weapons.Laser(rfighter, this, { range: 500, speed: 300, lifetime: 1000});
+        //var laser = new weapons.Laser(bfighter, rfighter, this);
 
 
     }
@@ -132,16 +139,93 @@
 
     }
 
+    function setDefaults(options, defaults){
+        // maybe this is bad for IE 11?
+        return Object.assign({}, defaults, options);
+    }
+
+    battle.getTeam = function(target)
+    {
+        result = null;
+        for(team in ships) 
+        {
+            if(typeof ships[team] !== 'undefined')
+            {
+                ships[team].children.iterate(function(ship){
+                    if(ship == target)
+                    {
+                        result = team;
+                        return;
+                    }
+
+                })
+            }
+        };
+        return result;
+
+    }
+
+    battle.getHostileTeams = function(target)
+    {
+        var result = [];
+        var friendlyteam = this.getTeam(target);
+
+        for(team in ships)
+        {
+            if(friendlyteam != team)
+                result.push(team);
+        }
+
+        return result;
+    }
+
+    battle.selectBestTarget = function(origin, range)
+    {
+        var hostileTeams = this.getHostileTeams(origin);
+
+        var closestship_distance = range;
+        var closestship_ship = null;
+
+        hostileTeams.forEach(function(team) {
+            ships[team].children.iterate(function(ship) {
+                
+                // pick best ship in range?
+                // for now just pick closest ship in range
+                var distance = Phaser.Math.Distance.Between(origin.x, origin.y, ship.x, ship.y);
+
+                // check if distance is less than either 1) the range of the weapon or 2) the previous closest ship which must be closer than range
+                if(distance < closestship_distance)
+                {
+                    closestship_distance = distance;
+                    closestship_ship = ship;
+                }
+
+            })
+
+        })
+
+        return closestship_ship;
+    }
+
     weapons.Laser = class
     {
-        constructor(origin, target, range, speed, lifetime, sceneContext)
+        constructor(origin, sceneContext, options)
         {
+
             this.origin = origin;
-            this.target = target;
-            this.range = range;
-            this.speed = speed;
+            this.target = null;
             this.sceneContext = sceneContext;
-            this.lifetime = lifetime;
+
+
+            options = setDefaults(options, {
+                range: 500,
+                speed: 500,
+                lifetime: 1000
+            });
+
+            this.range = options.range;
+            this.speed = options.speed;
+            this.lifetime = options.lifetime;
 
             this.audio = {
                 laserimpact: this.sceneContext.sound.add('laserimpact', { volume: 0.2}),
@@ -176,6 +260,7 @@
         {
             var laser = weapons.lasers.create(this.origin.x, this.origin.y, 'laser');
 
+
             var angle = Phaser.Math.Angle.BetweenPoints(this.origin, this.target) + (rand.realInRange(-0.1, 0.1));
             laser.rotation = angle;
             laser.setScale(0.4);
@@ -200,14 +285,15 @@
 
         update()
         {
-            var distance = Phaser.Math.Distance.Between(this.origin.x, this.origin.y, this.target.x, this.target.y);
+            // returns null if no targets are in range
+            this.target = this.sceneContext.selectBestTarget(this.origin, this.range);
 
-            if(distance < this.range && !this.isFiring)
+            if(this.target != null && !this.isFiring)
             {
                 this.beginFire();
             }
             
-            if(distance > this.range && this.isFiring)
+            if(this.target == null && this.isFiring)
             {
                 this.stopFire();
             }
