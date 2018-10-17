@@ -45,6 +45,7 @@
 
     let battle = new Phaser.Scene('Battle');
     var emitter = new Phaser.Events.EventEmitter();
+    var rand = new Phaser.Math.RandomDataGenerator();
 
     var config = {
         type: Phaser.AUTO,
@@ -110,8 +111,8 @@
         weapons.lasers = this.physics.add.group();
 
 
-        var laser = new weapons.Laser(rfighter, bfighter, 500, 500, this);
-        var laser = new weapons.Laser(bfighter, rfighter, 500, 300, this);
+        var laser = new weapons.Laser(rfighter, bfighter, 500, 500, 1000, this);
+        var laser = new weapons.Laser(bfighter, rfighter, 500, 300, 1000, this);
 
 
     }
@@ -130,16 +131,17 @@
 
     weapons.Laser = class
     {
-        constructor(origin, target, range, speed, sceneContext)
+        constructor(origin, target, range, speed, lifetime, sceneContext)
         {
             this.origin = origin;
             this.target = target;
             this.range = range;
             this.speed = speed;
             this.sceneContext = sceneContext;
+            this.lifetime = lifetime;
 
             this.isFiring = false;
-
+            
             emitter.on('update', this.update, this);
 
         }
@@ -169,15 +171,23 @@
             console.log("Is firing!");
             var laser = weapons.lasers.create(this.origin.x, this.origin.y, 'laser');
 
-            var angle = Phaser.Math.Angle.BetweenPoints(this.origin, this.target) + (Phaser.Math.Between(-1, 1) / 35);
-
+            var angle = Phaser.Math.Angle.BetweenPoints(this.origin, this.target) + (rand.realInRange(-0.1, 0.1));
             laser.rotation = angle;
-
             laser.setScale(0.4);
-
             var velocity = this.sceneContext.physics.velocityFromRotation(angle, 600);
-
             laser.setVelocity(velocity.x, velocity.y);
+
+            this.sceneContext.time.addEvent({ delay: this.lifetime, callback: function() {
+                laser.destroy();
+            }});
+
+            this.sceneContext.physics.add.overlap(laser, this.target, this.impact, null, this.sceneContext)
+        }
+
+        impact(laser, target)
+        {
+            laser.disableBody(true, true);
+
         }
 
         update()
