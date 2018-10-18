@@ -99,6 +99,7 @@
 
         this.load.audio('laserimpact', 'assets/laser_impact.wav');
         this.load.audio('laserfire', 'assets/laser_fire.wav');
+        this.load.audio('smallshipexplode', 'assets/small_ship_explode.wav');
 
     }
 
@@ -312,6 +313,8 @@
 
             // slice out the ship;
             ships[this.team].remove(this.sprite);
+
+            this.sceneContext.sound.add('smallshipexplode').play();
 
             var emitter = particles.redburst.createEmitter({
                 speed: 100,
