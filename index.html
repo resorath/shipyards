@@ -84,7 +84,9 @@
     }
 
     var craft = {
+    }
 
+    var particles = {
     }
 
 
@@ -93,6 +95,7 @@
         this.load.image('shipyard', 'assets/shipyard.png');
         this.load.image('fighter', 'assets/fighter.png');
         this.load.image('laser', 'assets/redlaser.png');
+        this.load.image('redparticle', 'assets/red.png')
 
         this.load.audio('laserimpact', 'assets/laser_impact.wav');
         this.load.audio('laserfire', 'assets/laser_fire.wav');
@@ -108,7 +111,7 @@
         ships.red = this.physics.add.group();
         ships.blue = this.physics.add.group();
 
-
+        particles.redburst = this.add.particles('redparticle');
 
 
         shipyards.blue.shipyard = this.add.sprite(100, 250, 'shipyard');
@@ -130,16 +133,23 @@
         bfighter2.setVelocityX(50);
         bfighter2.name = "2"*/
 
-        var r = new craft.Fighter("red", 240, {
+        var r = new craft.Fighter(this, "red", 240, {
             weapons:[ 
-                new weapons.Laser(this, { range: 500, cooldown: 100, lifetime: 1000 }),
-                new weapons.Laser(this, { range: 800, cooldown: 500, lifetime: 2000 })
+                new weapons.Laser(this, { range: 700, cooldown: 500, lifetime: 1000 })
             ]
         })
        
 
-        new craft.Fighter("blue", 400, {})
-        new craft.Fighter("blue", 50, {})
+        new craft.Fighter(this, "blue", 400, {
+            weapons:[ 
+                new weapons.Laser(this, { range: 500, cooldown: 500, lifetime: 1000 })
+            ]
+        })
+        new craft.Fighter(this, "blue", 50, {
+            weapons:[ 
+                new weapons.Laser(this, { range: 500, cooldown: 500, lifetime: 1000 })
+            ]
+        })
 
 
 
@@ -233,10 +243,11 @@
 
     craft.Fighter = class
     {
-        constructor(team, startY, options)
+        constructor(sceneContext, team, startY, options)
         {
             this.team = team;
             this.Y = startY;
+            this.sceneContext = sceneContext;
 
             options = setDefaults(options, {
                 scale: 0.3,
@@ -244,7 +255,8 @@
                 direction: 0,
                 name: '',
                 weapons: [],
-                X: 1200
+                X: 1200, 
+                health: 30
             })
 
             // hack for now
@@ -263,13 +275,55 @@
             this.sprite.rotation += options.direction;
             this.sprite.setVelocityX(options.velocity);
             this.sprite.name = options.name;
+            this.sprite.setDataEnabled();
 
+            this.sprite.data.set('parent', this);
+
+            this.health = options.health;
+
+            this.weapons = options.weapons;
 
             var that = this;
-            options.weapons.forEach(function(weapon){
+            this.weapons.forEach(function(weapon){
                 weapon.origin = that.sprite
             })
 
+
+        }
+
+        damage(amount)
+        {
+            this.health -= amount;
+
+            if(this.health <= 0)
+            {
+                this.destroy();
+            }
+        }
+
+        destroy()
+        {
+            this.weapons.forEach(function(weapon){
+                weapon.destroy();
+            })
+            this.weapons = null;
+
+            this.sprite.disableBody(true, true);
+
+            // slice out the ship;
+            ships[this.team].remove(this.sprite);
+
+            var emitter = particles.redburst.createEmitter({
+                speed: 100,
+                scale: { start: 0.3, end: 0 }, 
+                follow: this.sprite,
+                maxParticles: 50
+            });
+
+            var that = this;
+            this.sceneContext.time.addEvent({delay: 500, callback: function() {
+                emitter.explode(100, that.sprite.x, that.sprite.y)
+            }});
 
         }
 
@@ -288,13 +342,15 @@
                 range: 500,
                 cooldown: 500,
                 lifetime: 1000,
-                velocity: 600
+                velocity: 600, 
+                damage: 5
             });
 
             this.range = options.range;
             this.cooldown = options.cooldown;
             this.velocity = options.velocity;
             this.lifetime = options.lifetime;
+            this.damage = options.damage;
 
             this.audio = {
                 laserimpact: this.sceneContext.sound.add('laserimpact', { volume: 0.2}),
@@ -309,7 +365,9 @@
 
         destroy()
         {
-            emitter.removeListener('update', this.update);
+            emitter.removeListener('update', this.update, this);
+            this.stopFire();
+            this.origin = null;
         }
 
         beginFire()
@@ -350,10 +408,15 @@
             laser.destroy();
             this.audio.laserimpact.play();
 
+            target.data.get('parent').damage(this.damage);
         }
 
         update()
         {
+            // check if attached
+            if(this.origin == null)
+                return;
+
             // returns null if no targets are in range
             this.target = this.sceneContext.selectBestTarget(this.origin, this.range);
 
