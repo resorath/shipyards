@@ -45,6 +45,8 @@
 
 
     let battle = new Phaser.Scene('Battle');
+    let battleui = new Phaser.Scene('BattleUI');
+
     var emitter = new Phaser.Events.EventEmitter();
     var rand = new Phaser.Math.RandomDataGenerator();
 
@@ -58,7 +60,7 @@
                 debug: false
             }
         },
-        scene: battle
+        scene: [battle, battleui]
     };
 
 
@@ -89,6 +91,57 @@
     var particles = {
     }
 
+    battleui.makeButton = function(name, x, y, callback)
+    {
+        var button = this.add.image(x, y, 'button', 1).setInteractive();
+        button.name = name;
+        button.setScale(2, 1.5);
+
+        button.setDataEnabled();
+        button.data.set('callback', callback);
+
+        var text = this.add.bitmapText(x - 40, y - 8, 'nokia', name, 16);
+        text.x += (button.width - text.width) / 2;
+    }
+
+    battleui.setButtonFrame = function(button, frame)
+    {
+        button.frame = button.scene.textures.getFrame('button', frame);
+    }
+
+    battleui.preload = function() 
+    {
+        this.load.spritesheet('button', 'assets/flixel-button.png', { frameWidth: 80, frameHeight: 20 });
+        this.load.bitmapFont('nokia', 'assets/nokia16black.png', 'https://labs.phaser.io/assets/fonts/bitmap/nokia16black.xml');
+    }
+
+    battleui.create = function() {
+
+
+        this.input.on('gameobjectover', function (pointer, button)
+        {
+            this.setButtonFrame(button, 0);
+        }, this);
+        this.input.on('gameobjectout', function (pointer, button)
+        {
+            this.setButtonFrame(button, 1);
+        }, this);
+        this.input.on('gameobjectdown', function (pointer, button)
+        {
+            this.setButtonFrame(button, 2);
+            
+            button.data.get('callback')();
+
+        }, this);
+        this.input.on('gameobjectup', function (pointer, button)
+        {
+            this.setButtonFrame(button, 0);
+        }, this);
+
+        this.makeButton('shot', 100, 50, function() { console.log("yo yo")});
+    }
+
+
 
     battle.preload = function()
     {
@@ -101,6 +154,8 @@
         this.load.audio('laserfire', 'assets/laser_fire.wav');
         this.load.audio('smallshipexplode', 'assets/small_ship_explode.wav');
 
+
+        battleui.scene.start();
     }
 
     battle.create = function()
@@ -118,14 +173,14 @@
         shipyards.blue.shipyard = this.add.sprite(100, 250, 'shipyard');
 
 
-        this.time.addEvent({delay: 2500, callback: function() {
-            new craft.Fighter(this, "red", Phaser.Math.Between(200, 280), {
+        this.time.addEvent({delay: 1000, callback: function() {
+            new craft.Fighter(this, "red", Phaser.Math.Between(140, 320), {
                 weapons:[ 
                     new weapons.Laser(this, { range: 700, cooldown: 200, lifetime: 1000 })
                 ]
             })
 
-            new craft.Fighter(this, "blue", Phaser.Math.Between(200, 280), {
+            new craft.Fighter(this, "blue", Phaser.Math.Between(140, 320), {
                 weapons:[ 
                     new weapons.Laser(this, { range: 700, cooldown: 200, lifetime: 1000 })
                 ]
