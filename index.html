@@ -117,24 +117,21 @@
 
         shipyards.blue.shipyard = this.add.sprite(100, 250, 'shipyard');
 
-        /*
-        var rfighter = ships.red.create(1200, 240, 'fighter');
-        rfighter.setScale(0.3);
-        rfighter.setVelocityX(-50);
 
-        var bfighter = ships.blue.create(400, 280, 'fighter');
-        bfighter.setScale(0.3);
-        bfighter.rotation += Math.PI;
-        bfighter.setVelocityX(50);
-        bfighter.name = "1"
+        this.time.addEvent({delay: 2500, callback: function() {
+            new craft.Fighter(this, "red", Phaser.Math.Between(200, 280), {
+                weapons:[ 
+                    new weapons.Laser(this, { range: 700, cooldown: 200, lifetime: 1000 })
+                ]
+            })
 
-        var bfighter2 = ships.blue.create(50, 80, 'fighter');
-        bfighter2.setScale(0.3);
-        bfighter2.rotation += Math.PI;
-        bfighter2.setVelocityX(50);
-        bfighter2.name = "2"*/
-
-        var r = new craft.Fighter(this, "red", 240, {
+            new craft.Fighter(this, "blue", Phaser.Math.Between(200, 280), {
+                weapons:[ 
+                    new weapons.Laser(this, { range: 700, cooldown: 200, lifetime: 1000 })
+                ]
+            })
+        }, callbackScope: this, repeat: Number.MAX_SAFE_INTEGER})
+        /*var r = new craft.Fighter(this, "red", 240, {
             weapons:[ 
                 new weapons.Laser(this, { range: 700, cooldown: 200, lifetime: 1000 })
             ]
@@ -150,7 +147,7 @@
             weapons:[ 
                 new weapons.Laser(this, { range: 500, cooldown: 500, lifetime: 1000 })
             ]
-        })
+        })*/
 
 
 
@@ -376,7 +373,7 @@
         beginFire()
         {
             this.isFiring = true;
-            this.timer = this.sceneContext.time.addEvent({ delay: this.cooldown, callback: this.fire, callbackScope: this, repeat: 999});
+            this.timer = this.sceneContext.time.addEvent({ delay: this.cooldown, callback: this.fire, callbackScope: this, repeat: Number.MAX_SAFE_INTEGER});
 
         }
 
@@ -401,7 +398,15 @@
                 laser.destroy();
             }});
 
-            this.sceneContext.physics.add.overlap(laser, this.target, this.impact, null, this);
+            // single target:
+            //this.sceneContext.physics.add.overlap(laser, this.target, this.impact, null, this);
+
+            // any target on the enemy team
+            var that = this;
+            this.sceneContext.getHostileTeams(this.origin).forEach(function(team) {
+                that.sceneContext.physics.add.overlap(laser, ships[team], that.impact, null, that);
+            });
+            
 
             this.audio.laserfire.play();
         }
