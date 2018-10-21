@@ -91,56 +91,6 @@
     var particles = {
     }
 
-    battleui.makeButton = function(name, x, y, callback)
-    {
-        var button = this.add.image(x, y, 'button', 1).setInteractive();
-        button.name = name;
-        button.setScale(2, 1.5);
-
-        button.setDataEnabled();
-        button.data.set('callback', callback);
-
-        var text = this.add.bitmapText(x - 40, y - 8, 'nokia', name, 16);
-        text.x += (button.width - text.width) / 2;
-    }
-
-    battleui.setButtonFrame = function(button, frame)
-    {
-        button.frame = button.scene.textures.getFrame('button', frame);
-    }
-
-    battleui.preload = function() 
-    {
-        this.load.spritesheet('button', 'assets/flixel-button.png', { frameWidth: 80, frameHeight: 20 });
-        this.load.bitmapFont('nokia', 'assets/nokia16black.png', 'https://labs.phaser.io/assets/fonts/bitmap/nokia16black.xml');
-    }
-
-    battleui.create = function() {
-
-
-        this.input.on('gameobjectover', function (pointer, button)
-        {
-            this.setButtonFrame(button, 0);
-        }, this);
-        this.input.on('gameobjectout', function (pointer, button)
-        {
-            this.setButtonFrame(button, 1);
-        }, this);
-        this.input.on('gameobjectdown', function (pointer, button)
-        {
-            this.setButtonFrame(button, 2);
-            
-            button.data.get('callback')();
-
-        }, this);
-        this.input.on('gameobjectup', function (pointer, button)
-        {
-            this.setButtonFrame(button, 0);
-        }, this);
-
-        this.makeButton('shot', 100, 50, function() { console.log("yo yo")});
-    }
-
 
 
     battle.preload = function()
@@ -344,6 +294,10 @@
 
         }
 
+        static get Name() {
+            return "Fighter"
+        }
+
         damage(amount)
         {
             this.health -= amount;
@@ -497,6 +451,111 @@
         
 
     }
+
+
+    battleui.makeButton = function(name, x, y, callback)
+    {
+        var button = this.add.image(x, y, 'button', 1).setInteractive();
+        button.name = name;
+        button.setScale(2, 1.5);
+
+        button.setDataEnabled();
+        button.data.set('callback', callback);
+
+        var text = this.add.bitmapText(x - 40, y - 8, 'nokia', name, 16);
+        text.x += (button.width - text.width) / 2;
+
+        button.data.set('text', text);
+
+        return button;
+    }
+
+    battleui.setButtonFrame = function(button, frame)
+    {
+        button.frame = button.scene.textures.getFrame('button', frame);
+    }
+
+    battleui.bays = {
+        "bay 1": { 
+            selected: null, 
+            spawnRate: 1,
+            xRange: { min: 180, max: 280},
+            available: [
+                craft.Fighter    
+            ] 
+        },
+        "bay 2": { 
+            selected: null, 
+            spawnRate: 1,
+            xRange: { min: 280, max: 380},
+            available: [
+                craft.Fighter    
+            ] 
+        },
+
+    }
+
+    battleui.preload = function() 
+    {
+        this.load.spritesheet('button', 'assets/flixel-button.png', { frameWidth: 80, frameHeight: 20 });
+        this.load.bitmapFont('nokia', 'assets/nokia16black.png', 'https://labs.phaser.io/assets/fonts/bitmap/nokia16black.xml');
+    }
+
+    battleui.create = function() {
+
+
+        this.input.on('gameobjectover', function (pointer, button)
+        {
+            this.setButtonFrame(button, 0);
+        }, this);
+        this.input.on('gameobjectout', function (pointer, button)
+        {
+            this.setButtonFrame(button, 1);
+        }, this);
+        this.input.on('gameobjectdown', function (pointer, button)
+        {
+            this.setButtonFrame(button, 2);
+            
+            button.data.get('callback')(button);
+
+        }, this);
+        this.input.on('gameobjectup', function (pointer, button)
+        {
+            this.setButtonFrame(button, 0);
+        }, this);
+
+        x = 100;
+        for(bay in battleui.bays)
+        {
+            this.makeButton(bay, x, 650, this.topLevelClick);
+
+            x += 160;
+        }
+
+        //this.makeButton('shot', 100, 650, function() { if(battle.scene.isActive()) {battle.scene.pause()}else{battle.scene.resume()} } );
+    }
+
+    battleui.topLevelClick = function(button){
+        battle.scene.pause();
+        
+        x = button.x + 20;
+        y = 620;
+        battleui.bays[button.name].available.forEach(function(craft) {
+            button = battleui.makeButton(craft.Name, x, y, battleui.secondLevelClick);
+            button.data.set('craft', craft);
+            y -= 30;
+        })
+
+    }
+
+    battleui.secondLevelClick = function(button)
+    {
+        battle.scene.resume();
+
+        button.destroy();
+
+    }
+
 
 
 
