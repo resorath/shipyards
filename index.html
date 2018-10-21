@@ -124,11 +124,25 @@
 
 
         this.time.addEvent({delay: 1000, callback: function() {
-            new craft.Fighter(this, "red", Phaser.Math.Between(140, 320), {
+
+            for(bay in battleui.bays)
+            {
+                var bayinfo = battleui.bays[bay];
+                if(bayinfo.selected != null)
+                {
+                    new bayinfo.selected(this, "red", Phaser.Math.Between(bayinfo.xRange.min, bayinfo.xRange.max), {
+                        weapons:[ 
+                            new weapons.Laser(this, { range: 700, cooldown: 200, lifetime: 1000 })
+                        ]
+                    });
+                }
+
+            }
+            /*new craft.Fighter(this, "red", Phaser.Math.Between(140, 320), {
                 weapons:[ 
                     new weapons.Laser(this, { range: 700, cooldown: 200, lifetime: 1000 })
                 ]
-            })
+            })*/
 
             new craft.Fighter(this, "blue", Phaser.Math.Between(140, 320), {
                 weapons:[ 
@@ -465,9 +479,10 @@
         var text = this.add.bitmapText(x - 40, y - 8, 'nokia', name, 16);
         text.x += (button.width - text.width) / 2;
 
-        button.data.set('text', text);
+        //var text = this.add.text(x - 40, y - 8, name, {fontSize: 16, fill: '#000'});
+        //text.x += (button.width - text.width) / 2;
 
-        return button;
+        return {button, text};
     }
 
     battleui.setButtonFrame = function(button, frame)
@@ -478,17 +493,21 @@
     battleui.bays = {
         "bay 1": { 
             selected: null, 
+            button: undefined,
             spawnRate: 1,
             xRange: { min: 180, max: 280},
             available: [
+                null,
                 craft.Fighter    
             ] 
         },
         "bay 2": { 
             selected: null, 
+            button: undefined,
             spawnRate: 1,
             xRange: { min: 280, max: 380},
             available: [
+                null,
                 craft.Fighter    
             ] 
         },
@@ -527,7 +546,7 @@
         x = 100;
         for(bay in battleui.bays)
         {
-            this.makeButton(bay, x, 650, this.topLevelClick);
+            battleui.bays[bay].button = this.makeButton(bay, x, 650, this.topLevelClick);
 
             x += 160;
         }
@@ -535,24 +554,53 @@
         //this.makeButton('shot', 100, 650, function() { if(battle.scene.isActive()) {battle.scene.pause()}else{battle.scene.resume()} } );
     }
 
+    battleui.activeSubMenu = [];
+
     battleui.topLevelClick = function(button){
         battle.scene.pause();
         
         x = button.x + 20;
         y = 620;
+        
+
         battleui.bays[button.name].available.forEach(function(craft) {
-            button = battleui.makeButton(craft.Name, x, y, battleui.secondLevelClick);
-            button.data.set('craft', craft);
+            if(craft == null)
+                buttonset = battleui.makeButton("Empty", x, y, battleui.secondLevelClick);
+            else
+                buttonset = battleui.makeButton(craft.Name, x, y, battleui.secondLevelClick);
+            buttonset.button.data.set('craft', craft);
+            buttonset.button.data.set('parent', button.name);
+            
+            battleui.activeSubMenu.push(buttonset);
+
             y -= 30;
         })
 
     }
 
+    var last;
     battleui.secondLevelClick = function(button)
     {
         battle.scene.resume();
 
-        button.destroy();
+        var parentname = button.data.get('parent');
+        var parent = battleui.bays[parentname].button;
+        var craft = button.data.get('craft');
+
+        if(craft == null)
+            parent.text.setText("Empty");
+        else
+            parent.text.setText(craft.Name);
+
+        battleui.bays[parentname].selected = craft;
+
+        console.log(battleui.activeSubMenu);
+        battleui.activeSubMenu.forEach(function(subelement) {
+            subelement.button.destroy();
+            subelement.text.destroy();            
+        })
+
+        battleui.activeSubMenu = [];
 
     }
 
