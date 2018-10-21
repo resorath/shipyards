@@ -28,26 +28,8 @@
 
     'use strict';
 
-    function resize() {
-        var canvas = document.querySelector("canvas");
-        var windowWidth = window.innerWidth;
-        var windowHeight = window.innerHeight;
-        var windowRatio = windowWidth / windowHeight;
-        var gameRatio = config.width / config.height;
-
-        if(windowRatio < gameRatio){
-            canvas.style.width = windowWidth + "px";
-            canvas.style.height = (windowWidth / gameRatio) + "px";
-        }
-        else {
-            canvas.style.width = (windowHeight * gameRatio) + "px";
-            canvas.style.height = windowHeight + "px";
-        }
-    }
-
-
-    let battle = new Phaser.Scene('Battle');
-    let battleui = new Phaser.Scene('BattleUI');
+    var battle = new Phaser.Scene('Battle');
+    var battleui = new Phaser.Scene('BattleUI');
 
     var emitter = new Phaser.Events.EventEmitter();
     var rand = new Phaser.Math.RandomDataGenerator();
@@ -106,6 +88,7 @@
     {
         this.load.image('shipyard', 'assets/shipyard.png');
         this.load.image('fighter', 'assets/fighter.png');
+        this.load.image('corvette', 'assets/corvette.png');
         this.load.image('laser', 'assets/redlaser.png');
         this.load.image('redparticle', 'assets/red.png')
 
@@ -123,15 +106,16 @@
     {
         weapons.lasers = this.physics.add.group();
 
-        shipyards.red.shipyard = this.add.sprite(1300, 250, 'shipyard');
 
         ships.red = this.physics.add.group();
         ships.blue = this.physics.add.group();
 
         particles.redburst = this.add.particles('redparticle');
 
-
-        shipyards.blue.shipyard = this.add.sprite(100, 250, 'shipyard');
+        //shipyards.red.shipyard = this.add.sprite(1300, 250, 'shipyard');
+        shipyards.red.shipyard = new craft.Shipyard(this, "red", 250);
+        shipyards.blue.shipyard = new craft.Shipyard(this, "blue", 250);
+       //shipyards.blue.shipyard = this.add.sprite(100, 250, 'shipyard');
 
 
         this.time.addEvent({delay: 1000, callback: function() {
@@ -197,8 +181,8 @@
         battle.round++;
         emitter.emit('update');
 
-        shipyards.red.shipyard.rotation += 0.001;
-        shipyards.blue.shipyard.rotation -= 0.001;
+        shipyards.red.shipyard.sprite.rotation += 0.001;
+        shipyards.blue.shipyard.sprite.rotation -= 0.001;
 
         for(var bay in bays[playercolour])
         {
@@ -214,11 +198,7 @@
                 
                 if(battle.round % spawntime == 0)
                 {
-                    new bayinfo.selected(this, playercolour, Phaser.Math.Between(bayinfo.xRange.min, bayinfo.xRange.max), {
-                        weapons:[ 
-                            new weapons.Laser(this, { range: 700, cooldown: 200, lifetime: 1000 })
-                        ]
-                    });
+                    new bayinfo.selected(this, playercolour, Phaser.Math.Between(bayinfo.xRange.min, bayinfo.xRange.max));
                 }
             }
 
@@ -303,16 +283,26 @@
             this.sceneContext = sceneContext;
 
             options = setDefaults(options, {
-                scale: 0,
+                scale: 1,
                 velocity: 0,
                 direction: 0,
                 name: '',
                 weapons: [],
                 X: 1200, 
-                health: 3000
+                health: 1000
             })
 
+            if(this.team == "blue")
+            {
+                options.X = 100
+            }
+            if(this.team == "red")
+            {
+            }
+
             this.sprite = ships[this.team].create(options.X, this.Y, 'shipyard');
+            //this.sprite.body.setCircle(72);
+            this.sprite.body.setCircle(60);
             this.sprite.setScale(options.scale);
             this.sprite.name = options.name;
             this.sprite.setDataEnabled();
@@ -345,33 +335,92 @@
         destroy()
         {
 
-        //battle.cameras.main.pan(this.shipyards.red.shipyard.x, this.shipyards.red.shipyard.y, 3000)
-        //battle.cameras.zoomTo(4, 3000);
-
+            //@todo redo death animation
             this.weapons.forEach(function(weapon){
                 weapon.destroy();
             })
             this.weapons = null;
 
-            this.sprite.disableBody(true, true);
+            battle.cameras.main.pan(this.sprite.x, this.sprite.y, 2000)
+            battle.cameras.main.zoomTo(3, 3000);
+
+            //this.sprite.disableBody(true, true);
 
             // slice out the ship;
             ships[this.team].remove(this.sprite);
 
-            this.sceneContext.sound.add('smallshipexplode').play();
+            this.emitters = [];
 
-            var emitter = particles.redburst.createEmitter({
-                speed: 100,
-                scale: { start: 0.3, end: 0 }, 
-                follow: this.sprite,
-                blendMode: 'ADD',
-                maxParticles: 50
-            });
+            this.sceneContext.time.addEvent({delay: 3000, callback: function() {
 
-            var that = this;
-            this.sceneContext.time.addEvent({delay: 500, callback: function() {
-                emitter.explode(100, that.sprite.x, that.sprite.y)
-            }});
+                this.emitters.push(particles.redburst.createEmitter({
+                    speed: 100,
+                    scale: { start: 0.3, end: 0 }, 
+                    x: this.sprite.x - 50,
+                    y: this.sprite.y + 40,
+                    blendMode: 'ADD',
+                    maxParticles: 50
+                }));
+
+
+                this.sceneContext.sound.add('smallshipexplode').play();
+
+            }, callbackScope: this});
+
+            this.sceneContext.time.addEvent({delay: 3500, callback: function() {
+
+                this.emitters.push(particles.redburst.createEmitter({
+                    speed: 100,
+                    scale: { start: 0.3, end: 0 }, 
+                    x: this.sprite.x + 50,
+                    y: this.sprite.y - 40,
+                    blendMode: 'ADD',
+                    maxParticles: 50
+                }));
+
+                this.sceneContext.sound.add('smallshipexplode').play();
+
+            }, callbackScope: this});
+
+            this.sceneContext.time.addEvent({delay: 4000, callback: function() {
+
+                this.emitters.push(particles.redburst.createEmitter({
+                    speed: 100,
+                    scale: { start: 0.3, end: 0 }, 
+                    x: this.sprite.x + 30,
+                    y: this.sprite.y + 20,
+                    blendMode: 'ADD',
+                    maxParticles: 50
+                }));
+
+                this.sceneContext.sound.add('smallshipexplode').play();
+
+            }, callbackScope: this});
+
+
+            this.sceneContext.time.addEvent({delay: 5000, callback: function() {
+
+                var emitter = particles.redburst.createEmitter({
+                    speed: 100,
+                    scale: { start: 0.3, end: 0 }, 
+                    x: this.sprite.x,
+                    y: this.sprite.y,
+                    blendMode: 'ADD',
+                    maxParticles: 50
+                });
+
+                this.sceneContext.sound.add('smallshipexplode').play();
+                emitter.explode(500, this.sprite.x, this.sprite.y);
+
+                var that = this;
+                this.emitters.forEach(function(e) {
+                    e.explode(500, e.x.propertyValue, e.y.propertyValue);
+                })
+
+                this.sprite.disableBody(true, true);
+
+
+            }, callbackScope: this});
 
         }
 
@@ -390,7 +439,9 @@
                 velocity: 50,
                 direction: 0,
                 name: '',
-                weapons: [],
+                weapons: [ 
+                    new weapons.Laser(sceneContext, { range: 700, cooldown: 200, lifetime: 1000 })
+                ],
                 X: 1200, 
                 health: 30
             })
@@ -470,6 +521,103 @@
 
     }
 
+    craft.Corvette = class
+    {
+        constructor(sceneContext, team, startY, options)
+        {
+            this.team = team;
+            this.Y = startY;
+            this.sceneContext = sceneContext;
+
+            options = setDefaults(options, {
+                scale: 0.3,
+                velocity: 50,
+                direction: 0,
+                name: '',
+                weapons: [ 
+                    new weapons.Laser(sceneContext, { range: 700, cooldown: 200, lifetime: 1000, offset: {x: -40, y: 0} }),
+                    new weapons.Laser(sceneContext, { range: 700, cooldown: 200, lifetime: 1000, offset: {x: -10, y: 0} }),
+                    new weapons.Laser(sceneContext, { range: 700, cooldown: 200, lifetime: 1000, offset: {x: 20, y: 0} })
+                ],
+                X: 1200, 
+                health: 500
+            })
+
+            // hack for now
+            if(this.team == "blue")
+            {
+                options.direction = Math.PI;
+                options.X = 50
+            }
+            if(this.team == "red")
+            {
+                options.velocity = options.velocity *  -1;
+            }
+
+            this.sprite = ships[this.team].create(options.X, this.Y, 'corvette');
+            this.sprite.setScale(options.scale);
+            this.sprite.rotation += options.direction;
+            this.sprite.setVelocityX(options.velocity);
+            this.sprite.name = options.name;
+            this.sprite.setDataEnabled();
+
+            this.sprite.data.set('parent', this);
+
+            this.health = options.health;
+
+            this.weapons = options.weapons;
+
+            var that = this;
+            this.weapons.forEach(function(weapon){
+                weapon.origin = that.sprite
+            })
+
+
+        }
+
+        static get Name() { return "Corvette" }
+        static get BuildTime() { return 5 }
+
+        damage(amount)
+        {
+            this.health -= amount;
+
+            if(this.health <= 0)
+            {
+                this.destroy();
+            }
+        }
+
+        destroy()
+        {
+            this.weapons.forEach(function(weapon){
+                weapon.destroy();
+            })
+            this.weapons = null;
+
+            this.sprite.disableBody(true, true);
+
+            // slice out the ship;
+            ships[this.team].remove(this.sprite);
+
+            this.sceneContext.sound.add('smallshipexplode').play();
+
+            var emitter = particles.redburst.createEmitter({
+                speed: 100,
+                scale: { start: 0.3, end: 0 }, 
+                follow: this.sprite,
+                maxParticles: 50
+            });
+
+            var that = this;
+            this.sceneContext.time.addEvent({delay: 500, callback: function() {
+                emitter.explode(100, that.sprite.x, that.sprite.y)
+            }});
+
+        }
+
+    }
+
     weapons.Laser = class
     {
         constructor(sceneContext, options)
@@ -484,7 +632,8 @@
                 cooldown: 500,
                 lifetime: 1000,
                 velocity: 600, 
-                damage: 5
+                damage: 5, 
+                offset: {x: 0, y: 0}
             });
 
             this.range = options.range;
@@ -492,6 +641,7 @@
             this.velocity = options.velocity;
             this.lifetime = options.lifetime;
             this.damage = options.damage;
+            this.offset = options.offset;
 
             this.audio = {
                 laserimpact: this.sceneContext.sound.add('laserimpact', { volume: 0.2}),
@@ -520,13 +670,14 @@
 
         stopFire()
         {
-            this.timer.destroy();
+            if(this.timer)
+                this.timer.destroy();
             this.isFiring = false;
         }
 
         fire()
         {
-            var laser = weapons.lasers.create(this.origin.x, this.origin.y, 'laser');
+            var laser = weapons.lasers.create(this.origin.x + this.offset.x, this.origin.y + this.offset.y, 'laser');
 
 
             var angle = Phaser.Math.Angle.BetweenPoints(this.origin, this.target) + (rand.realInRange(-0.1, 0.1));
@@ -617,7 +768,8 @@
                 xRange: { min: 180, max: 280},
                 available: [
                     null,
-                    craft.Fighter    
+                    craft.Fighter,
+                    craft.Corvette    
                 ] 
             },
             "bay 2": { 
@@ -726,6 +878,22 @@
 
 
 
+    function resize() {
+        var canvas = document.querySelector("canvas");
+        var windowWidth = window.innerWidth;
+        var windowHeight = window.innerHeight;
+        var windowRatio = windowWidth / windowHeight;
+        var gameRatio = config.width / config.height;
+
+        if(windowRatio < gameRatio){
+            canvas.style.width = windowWidth + "px";
+            canvas.style.height = (windowWidth / gameRatio) + "px";
+        }
+        else {
+            canvas.style.width = (windowHeight * gameRatio) + "px";
+            canvas.style.height = windowHeight + "px";
+        }
+    }
 
     window.onload = function() {
         resize();
