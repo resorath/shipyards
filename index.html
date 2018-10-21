@@ -50,6 +50,8 @@
     var emitter = new Phaser.Events.EventEmitter();
     var rand = new Phaser.Math.RandomDataGenerator();
 
+    var playercolour = "red";
+
     var config = {
         type: Phaser.AUTO,
         width: 1400,
@@ -91,6 +93,10 @@
     var particles = {
     }
 
+    var gamerules = {
+        buildTimeFactor: 100
+    }
+
 
 
     battle.preload = function()
@@ -125,11 +131,13 @@
 
         this.time.addEvent({delay: 1000, callback: function() {
 
-            for(bay in battleui.bays)
+            /*for(bay in bays[playercolour])
             {
-                var bayinfo = battleui.bays[bay];
+                var bayinfo = bays[playercolour][bay];
                 if(bayinfo.selected != null)
                 {
+                    
+                    
                     new bayinfo.selected(this, "red", Phaser.Math.Between(bayinfo.xRange.min, bayinfo.xRange.max), {
                         weapons:[ 
                             new weapons.Laser(this, { range: 700, cooldown: 200, lifetime: 1000 })
@@ -137,7 +145,7 @@
                     });
                 }
 
-            }
+            }*/
             /*new craft.Fighter(this, "red", Phaser.Math.Between(140, 320), {
                 weapons:[ 
                     new weapons.Laser(this, { range: 700, cooldown: 200, lifetime: 1000 })
@@ -178,15 +186,38 @@
 
     }
 
-    var cooldown = false;
+    battle.round = 0;
     battle.update = function()
     {  
+        battle.round++;
         emitter.emit('update');
 
         shipyards.red.shipyard.rotation += 0.001;
         shipyards.blue.shipyard.rotation -= 0.001;
 
+        for(bay in bays[playercolour])
+        {
+            var bayinfo = bays[playercolour][bay];
+            if(bayinfo.selected != null)
+            {
+                /*
+                bayinfo.selected.BuildTime = the build time (bigger = slower)
+                bayinfo.buildMultipler = the build time multiplyer penalty of the bay (bigger = slower)
+                gamerules.buildTimeFactor = The global relationship between update speed and build times
+                */
+                var spawntime = bayinfo.buildMultiplyer * bayinfo.selected.BuildTime * gamerules.buildTimeFactor;   
+                
+                if(battle.round % spawntime == 0)
+                {
+                    new bayinfo.selected(this, playercolour, Phaser.Math.Between(bayinfo.xRange.min, bayinfo.xRange.max), {
+                        weapons:[ 
+                            new weapons.Laser(this, { range: 700, cooldown: 200, lifetime: 1000 })
+                        ]
+                    });
+                }
+            }
 
+        }
 
     }
 
@@ -308,9 +339,8 @@
 
         }
 
-        static get Name() {
-            return "Fighter"
-        }
+        static get Name() { return "Fighter" }
+        static get BuildTime() { return 1 }
 
         damage(amount)
         {
@@ -490,27 +520,29 @@
         button.frame = button.scene.textures.getFrame('button', frame);
     }
 
-    battleui.bays = {
-        "bay 1": { 
-            selected: null, 
-            button: undefined,
-            spawnRate: 1,
-            xRange: { min: 180, max: 280},
-            available: [
-                null,
-                craft.Fighter    
-            ] 
-        },
-        "bay 2": { 
-            selected: null, 
-            button: undefined,
-            spawnRate: 1,
-            xRange: { min: 280, max: 380},
-            available: [
-                null,
-                craft.Fighter    
-            ] 
-        },
+    var bays = {
+        "red": {
+            "bay 1": { 
+                selected: null, 
+                button: undefined,
+                buildMultiplyer: 1,
+                xRange: { min: 180, max: 280},
+                available: [
+                    null,
+                    craft.Fighter    
+                ] 
+            },
+            "bay 2": { 
+                selected: null, 
+                button: undefined,
+                buildMultiplyer: 1.5,
+                xRange: { min: 280, max: 380},
+                available: [
+                    null,
+                    craft.Fighter    
+                ] 
+            },
+        }
 
     }
 
@@ -544,9 +576,9 @@
         }, this);
 
         x = 100;
-        for(bay in battleui.bays)
+        for(bay in bays[playercolour])
         {
-            battleui.bays[bay].button = this.makeButton(bay, x, 650, this.topLevelClick);
+            bays[playercolour][bay].button = this.makeButton(bay, x, 650, this.topLevelClick);
 
             x += 160;
         }
@@ -563,7 +595,7 @@
         y = 620;
         
 
-        battleui.bays[button.name].available.forEach(function(craft) {
+        bays[playercolour][button.name].available.forEach(function(craft) {
             if(craft == null)
                 buttonset = battleui.makeButton("Empty", x, y, battleui.secondLevelClick);
             else
@@ -584,7 +616,7 @@
         battle.scene.resume();
 
         var parentname = button.data.get('parent');
-        var parent = battleui.bays[parentname].button;
+        var parent = bays[playercolour][parentname].button;
         var craft = button.data.get('craft');
 
         if(craft == null)
@@ -592,9 +624,8 @@
         else
             parent.text.setText(craft.Name);
 
-        battleui.bays[parentname].selected = craft;
+        bays[playercolour][parentname].selected = craft;
 
-        console.log(battleui.activeSubMenu);
         battleui.activeSubMenu.forEach(function(subelement) {
             subelement.button.destroy();
             subelement.text.destroy();            
