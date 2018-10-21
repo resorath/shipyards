@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <title>Shipyards</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.15.1/dist/phaser.js"></script>
     <style type="text/css">
         body {
             margin: 0;
@@ -25,6 +25,8 @@
 <body>
 
 <script type="text/javascript">
+
+    'use strict';
 
     function resize() {
         var canvas = document.querySelector("canvas");
@@ -99,6 +101,7 @@
 
 
 
+
     battle.preload = function()
     {
         this.load.image('shipyard', 'assets/shipyard.png');
@@ -113,6 +116,8 @@
 
         battleui.scene.start();
     }
+
+
 
     battle.create = function()
     {
@@ -195,7 +200,7 @@
         shipyards.red.shipyard.rotation += 0.001;
         shipyards.blue.shipyard.rotation -= 0.001;
 
-        for(bay in bays[playercolour])
+        for(var bay in bays[playercolour])
         {
             var bayinfo = bays[playercolour][bay];
             if(bayinfo.selected != null)
@@ -228,8 +233,8 @@
 
     battle.getTeam = function(target)
     {
-        result = null;
-        for(team in ships) 
+        var result = null;
+        for(var team in ships) 
         {
             if(typeof ships[team] !== 'undefined')
             {
@@ -252,7 +257,7 @@
         var result = [];
         var friendlyteam = this.getTeam(target);
 
-        for(team in ships)
+        for(var team in ships)
         {
             if(friendlyteam != team)
                 result.push(team);
@@ -287,6 +292,89 @@
         })
 
         return closestship_ship;
+    }
+
+    craft.Shipyard = class
+    {
+        constructor(sceneContext, team, startY, options)
+        {
+            this.team = team;
+            this.Y = startY;
+            this.sceneContext = sceneContext;
+
+            options = setDefaults(options, {
+                scale: 0,
+                velocity: 0,
+                direction: 0,
+                name: '',
+                weapons: [],
+                X: 1200, 
+                health: 3000
+            })
+
+            this.sprite = ships[this.team].create(options.X, this.Y, 'shipyard');
+            this.sprite.setScale(options.scale);
+            this.sprite.name = options.name;
+            this.sprite.setDataEnabled();
+
+            this.sprite.data.set('parent', this);
+
+            this.health = options.health;
+
+            this.weapons = options.weapons;
+
+            var that = this;
+            this.weapons.forEach(function(weapon){
+                weapon.origin = that.sprite
+            })
+        }
+
+        static get Name() { return "Shipyard" }
+        static get BuildTime() { return 10000 }
+
+        damage(amount)
+        {
+            this.health -= amount;
+
+            if(this.health <= 0)
+            {
+                this.destroy();
+            }
+        }
+
+        destroy()
+        {
+
+        //battle.cameras.main.pan(this.shipyards.red.shipyard.x, this.shipyards.red.shipyard.y, 3000)
+        //battle.cameras.zoomTo(4, 3000);
+
+            this.weapons.forEach(function(weapon){
+                weapon.destroy();
+            })
+            this.weapons = null;
+
+            this.sprite.disableBody(true, true);
+
+            // slice out the ship;
+            ships[this.team].remove(this.sprite);
+
+            this.sceneContext.sound.add('smallshipexplode').play();
+
+            var emitter = particles.redburst.createEmitter({
+                speed: 100,
+                scale: { start: 0.3, end: 0 }, 
+                follow: this.sprite,
+                blendMode: 'ADD',
+                maxParticles: 50
+            });
+
+            var that = this;
+            this.sceneContext.time.addEvent({delay: 500, callback: function() {
+                emitter.explode(100, that.sprite.x, that.sprite.y)
+            }});
+
+        }
+
     }
 
     craft.Fighter = class
@@ -575,8 +663,8 @@
             this.setButtonFrame(button, 0);
         }, this);
 
-        x = 100;
-        for(bay in bays[playercolour])
+        var x = 100;
+        for(var bay in bays[playercolour])
         {
             bays[playercolour][bay].button = this.makeButton(bay, x, 650, this.topLevelClick);
 
@@ -591,11 +679,12 @@
     battleui.topLevelClick = function(button){
         battle.scene.pause();
         
-        x = button.x + 20;
-        y = 620;
+        var x = button.x + 20;
+        var y = 620;
         
 
         bays[playercolour][button.name].available.forEach(function(craft) {
+            var buttonset;
             if(craft == null)
                 buttonset = battleui.makeButton("Empty", x, y, battleui.secondLevelClick);
             else
