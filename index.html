@@ -91,6 +91,7 @@
         this.load.image('corvette', 'assets/corvette.png');
         this.load.image('laser', 'assets/redlaser.png');
         this.load.image('redparticle', 'assets/red.png')
+        this.load.image('missile', 'assets/missile.png')
 
         this.load.audio('laserimpact', 'assets/laser_impact.wav');
         this.load.audio('laserfire', 'assets/laser_fire.wav');
@@ -105,7 +106,7 @@
     battle.create = function()
     {
         weapons.lasers = this.physics.add.group();
-
+        weapons.missiles = this.physics.add.group();
 
         ships.red = this.physics.add.group();
         ships.blue = this.physics.add.group();
@@ -141,11 +142,7 @@
                 ]
             })*/
 
-            new craft.Fighter(this, "blue", Phaser.Math.Between(140, 320), {
-                weapons:[ 
-                    new weapons.Laser(this, { range: 700, cooldown: 200, lifetime: 1000 })
-                ]
-            })
+            new craft.Fighter(this, "blue", Phaser.Math.Between(140, 320), {})
         }, callbackScope: this, repeat: Number.MAX_SAFE_INTEGER})
         /*var r = new craft.Fighter(this, "red", 240, {
             weapons:[ 
@@ -289,7 +286,7 @@
                 name: '',
                 weapons: [],
                 X: 1200, 
-                health: 1000
+                health: 10000
             })
 
             if(this.team == "blue")
@@ -440,7 +437,7 @@
                 direction: 0,
                 name: '',
                 weapons: [ 
-                    new weapons.Laser(sceneContext, { range: 700, cooldown: 200, lifetime: 1000 })
+                    new weapons.Laser(sceneContext, { range: 400, cooldown: 200, lifetime: 1000 })
                 ],
                 X: 1200, 
                 health: 30
@@ -535,9 +532,10 @@
                 direction: 0,
                 name: '',
                 weapons: [ 
-                    new weapons.Laser(sceneContext, { range: 700, cooldown: 200, lifetime: 1000, offset: {x: -40, y: 0} }),
-                    new weapons.Laser(sceneContext, { range: 700, cooldown: 200, lifetime: 1000, offset: {x: -10, y: 0} }),
-                    new weapons.Laser(sceneContext, { range: 700, cooldown: 200, lifetime: 1000, offset: {x: 20, y: 0} })
+                    new weapons.Laser(sceneContext, { range: 300, cooldown: 200, lifetime: 1000, offset: {x: -40, y: 0} }),
+                    new weapons.Laser(sceneContext, { range: 300, cooldown: 200, lifetime: 1000, offset: {x: -10, y: 0} }),
+                    new weapons.Laser(sceneContext, { range: 300, cooldown: 200, lifetime: 1000, offset: {x: 20, y: 0} }),
+                    new weapons.Missile(sceneContext, {})
                 ],
                 X: 1200, 
                 health: 500
@@ -628,7 +626,7 @@
 
 
             options = setDefaults(options, {
-                range: 500,
+                range: 300,
                 cooldown: 500,
                 lifetime: 1000,
                 velocity: 600, 
@@ -735,6 +733,133 @@
 
     }
 
+    weapons.Missile = class
+    {
+        constructor(sceneContext, options)
+        {
+            this.origin = null; // needs to be set when weapon is mounted
+            this.target = null;
+            this.sceneContext = sceneContext;
+
+
+            options = setDefaults(options, {
+                range: 1000,
+                cooldown: 6000,
+                lifetime: 5000,
+                velocity: 200, 
+                damage: 509, 
+                offset: {x: 0, y: -30}
+            });
+
+            this.range = options.range;
+            this.cooldown = options.cooldown;
+            this.velocity = options.velocity;
+            this.lifetime = options.lifetime;
+            this.damage = options.damage;
+            this.offset = options.offset;
+
+            this.audio = {
+                laserimpact: this.sceneContext.sound.add('laserimpact', { volume: 0.2}),
+                laserfire: this.sceneContext.sound.add('laserfire', {volume: 0.6})
+            }
+
+            this.isFiring = false;
+
+            emitter.on('update', this.update, this);
+
+        }
+
+        destroy()
+        {
+            emitter.removeListener('update', this.update, this);
+            this.stopFire();
+            this.origin = null;
+        }
+
+        beginFire()
+        {
+            this.isFiring = true;
+            this.timer = this.sceneContext.time.addEvent({ delay: this.cooldown, callback: this.fire, callbackScope: this, repeat: Number.MAX_SAFE_INTEGER});
+
+        }
+
+        stopFire()
+        {
+            if(this.timer)
+                this.timer.destroy();
+            this.isFiring = false;
+        }
+
+        fire()
+        {
+            var missile = weapons.missiles.create(this.origin.x + this.offset.x, this.origin.y + this.offset.y, 'missile');
+
+
+            var angle = -0.5 * Math.PI;
+            missile.rotation = angle;
+            missile.setScale(0.4);
+            var velocity = this.sceneContext.physics.velocityFromRotation(angle,40);
+            missile.setVelocity(velocity.x + this.origin.body.velocity.x, velocity.y);
+
+            
+
+            this.sceneContext.time.addEvent({ delay: this.lifetime, callback: function() {
+                missile.destroy();
+            }});
+
+            // single target:
+            //this.sceneContext.physics.add.overlap(laser, this.target, this.impact, null, this);
+
+            // any target on the enemy team
+            var that = this;
+            this.sceneContext.getHostileTeams(this.origin).forEach(function(team) {
+                that.sceneContext.physics.add.overlap(missile, ships[team], that.impact, null, that);
+            });
+            
+
+            this.audio.laserfire.play();
+        }
+
+        impact(missile, target)
+        {
+            missile.destroy();
+            this.audio.laserimpact.play();
+
+            target.data.get('parent').damage(this.damage);
+        }
+
+        update()
+        {
+            // check if attached
+            if(this.origin == null)
+                return;
+
+            // returns null if no targets are in range
+            this.target = this.sceneContext.selectBestTarget(this.origin, this.range);
+
+            if(this.target != null && !this.isFiring)
+            {
+                this.beginFire();
+            }
+            
+            if(this.target == null && this.isFiring)
+            {
+                this.stopFire();
+            }
+
+            var that = this;
+            weapons.missiles.children.iterate(function(missile) {
+                if(missile != null && that.target != null)
+                {
+                    missile.rotation = Phaser.Math.Angle.BetweenPoints(missile, that.target);
+                    that.sceneContext.physics.accelerateTo(missile, that.target.x, that.target.y, 60, 300, 300);
+                }
+            })
+
+        }
+        
+
+    }
 
     battleui.makeButton = function(name, x, y, callback)
     {
