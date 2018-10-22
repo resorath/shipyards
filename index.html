@@ -779,6 +779,12 @@
         beginFire()
         {
             this.isFiring = true;
+            
+            // fire immedietely
+            // @@ BUG this is firing too many missiles, perhaps because of how many times beginFire fires
+            this.fire();
+
+            // then set cooldown
             this.timer = this.sceneContext.time.addEvent({ delay: this.cooldown, callback: this.fire, callbackScope: this, repeat: Number.MAX_SAFE_INTEGER});
 
         }
@@ -793,6 +799,11 @@
         fire()
         {
             var missile = weapons.missiles.create(this.origin.x + this.offset.x, this.origin.y + this.offset.y, 'missile');
+            missile.setDataEnabled();
+
+            // snapshot the current target
+            missile.data.set('target', this.target);
+            console.log(this.target);
 
 
             var angle = -0.5 * Math.PI;
@@ -849,10 +860,22 @@
 
             var that = this;
             weapons.missiles.children.iterate(function(missile) {
-                if(missile != null && that.target != null)
+                var localtarget = missile.data.get('target');
+                if(localtarget != null && !localtarget.active)
                 {
-                    missile.rotation = Phaser.Math.Angle.BetweenPoints(missile, that.target);
-                    that.sceneContext.physics.accelerateTo(missile, that.target.x, that.target.y, 60, 300, 300);
+                    localtarget = that.target;
+                    missile.data.set('target', localtarget);
+                    console.log("new target");
+                }
+                else if(missile != null && localtarget != null)
+                {
+                    var newangle = Phaser.Math.Angle.BetweenPoints(missile, localtarget);
+                    var oldangle = missile.rotation;
+                    missile.rotation = Phaser.Math.Angle.RotateTo(oldangle, newangle, 0.03);
+                    var newvelocity = that.sceneContext.physics.velocityFromRotation(missile.rotation, 250, missile.body.velocity);
+                   
+                    //missile.setVelocity(newvelocity)
+                    //that.sceneContext.physics.accelerateTo(missile, localtarget.x, localtarget.y, 60, 300, 300);
                 }
             })
 
