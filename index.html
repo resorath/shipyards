@@ -176,7 +176,7 @@
     battle.update = function()
     {  
         battle.round++;
-        emitter.emit('update');
+        emitter.emit('update', battle.round);
 
         shipyards.red.shipyard.sprite.rotation += 0.001;
         shipyards.blue.shipyard.sprite.rotation -= 0.001;
@@ -528,7 +528,7 @@
 
             options = setDefaults(options, {
                 scale: 0.3,
-                velocity: 50,
+                velocity: 40,
                 direction: 0,
                 name: '',
                 weapons: [ 
@@ -744,7 +744,7 @@
 
             options = setDefaults(options, {
                 range: 1000,
-                cooldown: 6000,
+                cooldown: 20000,
                 lifetime: 5000,
                 velocity: 200, 
                 damage: 509, 
@@ -757,6 +757,7 @@
             this.lifetime = options.lifetime;
             this.damage = options.damage;
             this.offset = options.offset;
+            this.fireTimeOffset = Phaser.Math.Between(-3, 3)
 
             this.audio = {
                 laserimpact: this.sceneContext.sound.add('laserimpact', { volume: 0.2}),
@@ -778,14 +779,15 @@
 
         beginFire()
         {
+
             this.isFiring = true;
             
             // fire immedietely
             // @@ BUG this is firing too many missiles, perhaps because of how many times beginFire fires
-            this.fire();
+            //this.fire();
 
             // then set cooldown
-            this.timer = this.sceneContext.time.addEvent({ delay: this.cooldown, callback: this.fire, callbackScope: this, repeat: Number.MAX_SAFE_INTEGER});
+            //this.timer = this.sceneContext.time.addEvent({ delay: this.cooldown, callback: this.fire, callbackScope: this, repeat: Number.MAX_SAFE_INTEGER});
 
         }
 
@@ -839,7 +841,7 @@
             target.data.get('parent').damage(this.damage);
         }
 
-        update()
+        update(round)
         {
             // check if attached
             if(this.origin == null)
@@ -850,12 +852,22 @@
 
             if(this.target != null && !this.isFiring)
             {
-                this.beginFire();
+                this.beginFire(round);
             }
             
             if(this.target == null && this.isFiring)
             {
                 this.stopFire();
+            }
+
+            if(this.isFiring)
+            {
+                var whenspawn = Math.round(this.cooldown / gamerules.buildTimeFactor) + this.fireTimeOffset;   
+                
+                if(round % whenspawn == 0)
+                {
+                    this.fire();
+                }
             }
 
             var that = this;
