@@ -746,7 +746,7 @@
                 range: 1000,
                 cooldown: 20000,
                 lifetime: 5000,
-                velocity: 200, 
+                velocity: 250, 
                 damage: 509, 
                 offset: {x: 0, y: -30}
             });
@@ -811,7 +811,7 @@
             var angle = -0.5 * Math.PI;
             missile.rotation = angle;
             missile.setScale(0.4);
-            var velocity = this.sceneContext.physics.velocityFromRotation(angle,40);
+            var velocity = this.sceneContext.physics.velocityFromRotation(angle, this.velocity);
             missile.setVelocity(velocity.x + this.origin.body.velocity.x, velocity.y);
 
             
@@ -884,7 +884,7 @@
                     var newangle = Phaser.Math.Angle.BetweenPoints(missile, localtarget);
                     var oldangle = missile.rotation;
                     missile.rotation = Phaser.Math.Angle.RotateTo(oldangle, newangle, 0.03);
-                    var newvelocity = that.sceneContext.physics.velocityFromRotation(missile.rotation, 250, missile.body.velocity);
+                    var newvelocity = that.sceneContext.physics.velocityFromRotation(missile.rotation, that.velocity, missile.body.velocity);
                    
                     //missile.setVelocity(newvelocity)
                     //that.sceneContext.physics.accelerateTo(missile, localtarget.x, localtarget.y, 60, 300, 300);
