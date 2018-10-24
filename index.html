@@ -273,6 +273,11 @@
         return closestship_ship;
     }
 
+
+
+    /** 
+    Craft templates 
+    **/
     craft.Shipyard = class
     {
         constructor(sceneContext, team, startY, options)
@@ -474,6 +479,8 @@
                 weapon.origin = that.sprite
             })
 
+            emitter.on('update', this.update, this);
+
 
         }
 
@@ -490,17 +497,37 @@
             }
         }
 
-        destroy()
+        update(round)
         {
-            this.weapons.forEach(function(weapon){
-                weapon.destroy();
-            })
+            // remove ships that wander out of bounds
+            if(this.sprite.x < -50 || this.sprite.y < -50 || this.sprite.x > config.width + 50 || this.sprite.y > config.height + 50)
+            {
+                this.remove();
+            }
+
+        }
+
+        remove()
+        {
+            if(this.weapons != null)
+            {
+                this.weapons.forEach(function(weapon){
+                    weapon.destroy();
+                })
+            }
             this.weapons = null;
 
             this.sprite.disableBody(true, true);
 
             // slice out the ship;
             ships[this.team].remove(this.sprite);
+
+            emitter.removeListener('update', this.update, this);
+        }
+
+        destroy()
+        {
+            this.remove();
 
             this.sceneContext.sound.add('smallshipexplode').play();
 
@@ -572,6 +599,7 @@
                 weapon.origin = that.sprite
             })
 
+            emitter.on('update', this.update, this);
 
         }
 
@@ -588,17 +616,37 @@
             }
         }
 
-        destroy()
+        update(round)
         {
-            this.weapons.forEach(function(weapon){
-                weapon.destroy();
-            })
+            // remove ships that wander out of bounds
+            if(this.sprite.x < -50 || this.sprite.y < -50 || this.sprite.x > config.width + 50 || this.sprite.y > config.height + 50)
+            {
+                this.remove();
+            }
+
+        }
+
+        remove()
+        {
+            if(this.weapons != null)
+            {
+                this.weapons.forEach(function(weapon){
+                    weapon.destroy();
+                })
+            }
             this.weapons = null;
 
             this.sprite.disableBody(true, true);
 
             // slice out the ship;
             ships[this.team].remove(this.sprite);
+
+            emitter.removeListener('update', this.update, this);
+        }
+
+        destroy()
+        {
+            this.remove();
 
             this.sceneContext.sound.add('smallshipexplode').play();
 
@@ -618,6 +666,10 @@
 
     }
 
+
+    /** 
+    Weapon templates 
+    **/
     weapons.Laser = class
     {
         constructor(sceneContext, options)
