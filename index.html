@@ -102,14 +102,14 @@
         battleui.scene.start();
     }
 
-    particles.fireballGenerator = function(originX, originY, directionX, directionY)
+    particles.fireballGenerator = function(originX, originY, directionX, directionY, size = 1)
     {
         var fireball = battle.add.follower(null, 50, 350, 'muzzleflash');
 
         var fireFX = battle.tweens.add({
             targets: fireball,
-            scaleX: 1,
-            scaleY: 1,        
+            scaleX: size,
+            scaleY: size,        
             alpha: 0,
             duration: 300,
             ease: "Cubic.easeOut",
@@ -789,7 +789,7 @@
 
         impact(laser, target)
         {
-            particles.fireballGenerator(laser.x, laser.y, target.x, target.y);
+            particles.fireballGenerator(laser.x, laser.y, target.x, target.y, 0.6);
 
             laser.destroy();
 
@@ -915,6 +915,7 @@
 
         impact(missile, target)
         {
+            particles.fireballGenerator(missile.x, missile.y, missile.x + missile.body.velocity.x, missile.y + missile.body.velocity.y);
             missile.destroy();
             this.audio.laserimpact.play();
 
