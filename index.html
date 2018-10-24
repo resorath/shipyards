@@ -90,8 +90,9 @@
         this.load.image('fighter', 'assets/fighter.png');
         this.load.image('corvette', 'assets/corvette.png');
         this.load.image('laser', 'assets/redlaser.png');
-        this.load.image('redparticle', 'assets/red.png')
-        this.load.image('missile', 'assets/missile.png')
+        this.load.image('redparticle', 'assets/red.png');
+        this.load.image('missile', 'assets/missile.png');
+        this.load.image('muzzleflash', 'assets/muzzleflash.png');
 
         this.load.audio('laserimpact', 'assets/laser_impact.wav');
         this.load.audio('laserfire', 'assets/laser_fire.wav');
@@ -101,6 +102,34 @@
         battleui.scene.start();
     }
 
+    particles.fireballGenerator = function(originX, originY, directionX, directionY)
+    {
+        var fireball = battle.add.follower(null, 50, 350, 'muzzleflash');
+
+        var fireFX = battle.tweens.add({
+            targets: fireball,
+            scaleX: 1,
+            scaleY: 1,        
+            alpha: 0,
+            duration: 300,
+            ease: "Cubic.easeOut",
+            onComplete: function () { particles.rt.clear(); fireball.alpha = 0 },
+            paused: true
+        });
+
+        fireFX.setCallback('onUpdate', function() {
+            particles.rt.draw(fireball);
+        }, [], this);
+
+        fireball.setPosition(originX, originY).setScale(0.1).setAlpha(1);
+
+        var curve = new Phaser.Curves.Line(new Phaser.Math.Vector2(originX, originY), new Phaser.Math.Vector2(directionX, directionY));
+
+        fireball.setPath(curve);
+        fireball.startFollow(1500);
+        
+        fireFX.restart();   
+    }
 
 
     battle.create = function()
@@ -112,6 +141,9 @@
         ships.blue = this.physics.add.group();
 
         particles.redburst = this.add.particles('redparticle');
+
+        particles.rt = this.make.renderTexture({x:0, y:0, width: 50, height: 40}).setOrigin(0,0);
+
 
         //shipyards.red.shipyard = this.add.sprite(1300, 250, 'shipyard');
         shipyards.red.shipyard = new craft.Shipyard(this, "red", 250);
@@ -757,7 +789,11 @@
 
         impact(laser, target)
         {
+            console.log(laser.x, laser.y, laser.body);
+            particles.fireballGenerator(laser.x, laser.y, target.x, target.y);
+
             laser.destroy();
+
             this.audio.laserimpact.play();
 
             target.data.get('parent').damage(this.damage);
