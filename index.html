@@ -502,10 +502,17 @@
 
             this.sprite.data.set('parent', this);
 
+
             this.health = options.health;
             this.baseVelocity = options.velocity;
+            this.weapons = options.weapons;
 
+            var that = this;
+            this.weapons.forEach(function(weapon){
+                weapon.origin = that.sprite
+            })
 
+            emitter.on('update', this.update, this);
         }
 
         static get Name() { return "Fighter" }
@@ -697,6 +704,8 @@
 
     }
 
+
+
     battle.applyAcceleration = function(sprite, triggerSprite, slowestSpeed, topSpeed, acceleration)
     {
         if(triggerSprite != null)
@@ -748,7 +757,6 @@
             this.origin = null; // needs to be set when weapon is mounted
             this.target = null;
             this.sceneContext = sceneContext;
-
 
             options = setDefaults(options, {
                 range: 300,
