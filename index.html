@@ -144,62 +144,12 @@
 
         particles.rt = this.make.renderTexture({x:0, y:0, width: 50, height: 40}).setOrigin(0,0);
 
-
-        //shipyards.red.shipyard = this.add.sprite(1300, 250, 'shipyard');
         shipyards.red.shipyard = new craft.Shipyard(this, "red", 250);
         shipyards.blue.shipyard = new craft.Shipyard(this, "blue", 250);
-       //shipyards.blue.shipyard = this.add.sprite(100, 250, 'shipyard');
 
+        /*this.time.addEvent({delay: 1000, callback: function() {
 
-        this.time.addEvent({delay: 1000, callback: function() {
-
-            /*for(bay in bays[playercolour])
-            {
-                var bayinfo = bays[playercolour][bay];
-                if(bayinfo.selected != null)
-                {
-                    
-                    
-                    new bayinfo.selected(this, "red", Phaser.Math.Between(bayinfo.xRange.min, bayinfo.xRange.max), {
-                        weapons:[ 
-                            new weapons.Laser(this, { range: 700, cooldown: 200, lifetime: 1000 })
-                        ]
-                    });
-                }
-
-            }*/
-            /*new craft.Fighter(this, "red", Phaser.Math.Between(140, 320), {
-                weapons:[ 
-                    new weapons.Laser(this, { range: 700, cooldown: 200, lifetime: 1000 })
-                ]
-            })*/
-
-            //new craft.Fighter(this, "blue", Phaser.Math.Between(140, 320), {})
-        }, callbackScope: this, repeat: Number.MAX_SAFE_INTEGER})
-        /*var r = new craft.Fighter(this, "red", 240, {
-            weapons:[ 
-                new weapons.Laser(this, { range: 700, cooldown: 200, lifetime: 1000 })
-            ]
-        })
-       
-
-        new craft.Fighter(this, "blue", 400, {
-            weapons:[ 
-                new weapons.Laser(this, { range: 500, cooldown: 500, lifetime: 1000 })
-            ]
-        })
-        new craft.Fighter(this, "blue", 50, {
-            weapons:[ 
-                new weapons.Laser(this, { range: 500, cooldown: 500, lifetime: 1000 })
-            ]
-        })*/
-
-
-
-
-        /*new weapons.Laser(rfighter, this, { range: 500, cooldown: 300, lifetime: 1000});
-        new weapons.Laser(bfighter, this, { range: 500, cooldown: 300, lifetime: 1000});
-        new weapons.Laser(bfighter2, this, { range: 500, cooldown: 300, lifetime: 1000});*/
+        }, callbackScope: this, repeat: Number.MAX_SAFE_INTEGER})*/
 
 
     }
@@ -229,7 +179,7 @@
                     
                     if(battle.round % spawntime == 0)
                     {
-                        new bayinfo.selected(this, player, Phaser.Math.Between(bayinfo.xRange.min, bayinfo.xRange.max));
+                        new bayinfo.selected(this, player, bayinfo.xRange.min)//@DISABLERANDOM, Phaser.Math.Between(bayinfo.xRange.min, bayinfo.xRange.max));
                     }
                 }
 
@@ -462,6 +412,20 @@
 
     }
 
+    var teammodifiers = {
+        red: {
+            direction: 0,
+            X: 1350,
+            velocityMod: -1
+        },
+
+        blue: {
+            direction: Math.PI,
+            X: 50,
+            velocityMod: 1
+        }
+    }
+
     craft.Fighter = class
     {
         constructor(sceneContext, team, startY, options)
@@ -482,16 +446,11 @@
                 health: 30
             })
 
-            // hack for now
-            if(this.team == "blue")
-            {
-                options.direction = Math.PI;
-                options.X = 50
-            }
-            if(this.team == "red")
-            {
-                options.velocity = options.velocity *  -1;
-            }
+            // team specific modifiers
+            options.direction = teammodifiers[this.team].direction;
+            options.X = teammodifiers[this.team].X;
+            options.velocity = options.velocity * teammodifiers[this.team].velocityMod;
+
 
             this.sprite = ships[this.team].create(options.X, this.Y, 'fighter');
             this.sprite.setScale(options.scale);
@@ -548,10 +507,10 @@
             }
             this.weapons = null;
 
-            this.sprite.disableBody(true, true);
-
             // slice out the ship;
             ships[this.team].remove(this.sprite);
+
+            this.sprite.destroy();
 
             emitter.removeListener('update', this.update, this);
         }
@@ -603,16 +562,10 @@
                 health: 500
             })
 
-            // hack for now
-            if(this.team == "blue")
-            {
-                options.direction = Math.PI;
-                options.X = 50
-            }
-            if(this.team == "red")
-            {
-                options.velocity = options.velocity *  -1;
-            }
+            // team specific modifiers
+            options.direction = teammodifiers[this.team].direction;
+            options.X = teammodifiers[this.team].X;
+            options.velocity = options.velocity * teammodifiers[this.team].velocityMod;
 
             this.sprite = ships[this.team].create(options.X, this.Y, 'corvette');
             this.sprite.setScale(options.scale);
@@ -674,10 +627,10 @@
             }
             this.weapons = null;
 
-            this.sprite.disableBody(true, true);
-
             // slice out the ship;
             ships[this.team].remove(this.sprite);
+
+            this.sprite.destroy();
 
             emitter.removeListener('update', this.update, this);
         }
@@ -810,8 +763,14 @@
         {
             var laser = weapons.lasers.create(this.origin.x + this.offset.x, this.origin.y + this.offset.y, 'laser');
 
+            var angle = Phaser.Math.Angle.Between(
+                this.origin.x, 
+                this.origin.y, 
+                this.target.x, + rand.realInRange(this.target.body.width / -2, this.target.body.width / 2),
+                this.target.y + rand.realInRange(this.target.body.height / -2, this.target.body.height / 2)
+            )// + (rand.realInRange(-0.04, 0.04));
 
-            var angle = Phaser.Math.Angle.BetweenPoints(this.origin, this.target) + (rand.realInRange(-0.1, 0.1));
+            //var angle = Phaser.Math.Angle.BetweenPoints(this.origin, this.target) + (rand.realInRange(-0.04, 0.04));
             laser.rotation = angle;
             laser.setScale(0.4);
             var velocity = this.sceneContext.physics.velocityFromRotation(angle, this.velocity);
@@ -893,7 +852,7 @@
             this.lifetime = options.lifetime;
             this.damage = options.damage;
             this.offset = options.offset;
-            this.fireTimeOffset = Phaser.Math.Between(-3, 3)
+            this.fireTimeOffset = 0//@DISABLERANDOM Phaser.Math.Between(-3, 3)
 
             this.audio = {
                 laserimpact: this.sceneContext.sound.add('laserimpact', { volume: 0.2}),
@@ -1005,7 +964,6 @@
                 {
                     localtarget = that.sceneContext.selectBestTarget(missile.data.get('origin'), that.range)
                     missile.data.set('target', localtarget);
-                    console.log("new target");
                 }
                 else if(missile != null && localtarget != null)
                 {
