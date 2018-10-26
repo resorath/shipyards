@@ -179,7 +179,7 @@
                     
                     if(battle.round % spawntime == 0)
                     {
-                        new bayinfo.selected(this, player, bayinfo.xRange.min)//@DISABLERANDOM, Phaser.Math.Between(bayinfo.xRange.min, bayinfo.xRange.max));
+                        new bayinfo.selected(this, player, Phaser.Math.Between(bayinfo.xRange.min, bayinfo.xRange.max));
                     }
                 }
 
@@ -661,41 +661,45 @@
 
     battle.applyAcceleration = function(sprite, triggerSprite, slowestSpeed, topSpeed, acceleration)
     {
-        if(triggerSprite != null)
+        // make sure bodies are still in play
+        if(sprite.body != 'undefined' && triggerSprite.body != 'undefined')
         {
-            // slow down to half speed
+            // there is a target in range (not null)
+            if(triggerSprite != null)
+            {
+                // slow down to half speed
 
-            // Sprite is moving right
-            if(sprite.body.velocity.x > 0)
-            {
-                if(sprite.body.velocity.x > slowestSpeed)
-                    sprite.body.velocity.x -= acceleration;
+                // Sprite is moving right
+                if(sprite.body.velocity.x > 0)
+                {
+                    if(sprite.body.velocity.x > slowestSpeed)
+                        sprite.body.velocity.x -= acceleration;
+                }
+                // sprite is moving left
+                if(sprite.body.velocity.x < 0)
+                {
+                    if(sprite.body.velocity.x < slowestSpeed)
+                        sprite.body.velocity.x += acceleration;
+                }
             }
-            // sprite is moving left
-            if(sprite.body.velocity.x < 0)
+            else
             {
-                if(sprite.body.velocity.x < slowestSpeed)
-                    sprite.body.velocity.x += acceleration;
+                // speed up to full speed
+
+                // Sprite is moving right
+                if(sprite.body.velocity.x > 0)
+                {
+                    if(sprite.body.velocity.x < topSpeed)
+                        sprite.body.velocity.x += acceleration;
+                }
+                // sprite is moving left
+                if(sprite.body.velocity.x < 0)
+                {
+                    if(sprite.body.velocity.x > topSpeed)
+                        sprite.body.velocity.x -= acceleration;
+                }
             }
         }
-        else
-        {
-            // speed up to full speed
-
-            // Sprite is moving right
-            if(sprite.body.velocity.x > 0)
-            {
-                if(sprite.body.velocity.x < topSpeed)
-                    sprite.body.velocity.x += acceleration;
-            }
-            // sprite is moving left
-            if(sprite.body.velocity.x < 0)
-            {
-                if(sprite.body.velocity.x > topSpeed)
-                    sprite.body.velocity.x -= acceleration;
-            }
-        }
-
 
     }
 
