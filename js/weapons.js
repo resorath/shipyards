@@ -29,6 +29,8 @@ weapons.Laser = class
         this.damage = options.damage;
         this.offset = options.offset;
 
+        this.lasers = sceneContext.physics.add.group();
+
         this.audio = {
             laserimpact: this.sceneContext.sound.add('laserimpact', { volume: 0.2}),
             laserfire: this.sceneContext.sound.add('laserfire', {volume: 0.6})
@@ -63,7 +65,10 @@ weapons.Laser = class
 
     fire()
     {
-        var laser = weapons.lasers.create(this.origin.x + this.offset.x, this.origin.y + this.offset.y, 'laser');
+    	if(this.target == null || this.target.body === 'undefined')
+    		return;
+
+        var laser = this.lasers.create(this.origin.x + this.offset.x, this.origin.y + this.offset.y, 'laser');
 
         var angle = Phaser.Math.Angle.Between(
             this.origin.x, 
@@ -156,6 +161,8 @@ weapons.Missile = class
         this.offset = options.offset;
         this.fireTimeOffset = 0//@DISABLERANDOM Phaser.Math.Between(-3, 3)
 
+        this.missiles = sceneContext.physics.add.group();
+
         this.audio = {
             laserimpact: this.sceneContext.sound.add('laserimpact', { volume: 0.2}),
             laserfire: this.sceneContext.sound.add('laserfire', {volume: 0.6})
@@ -188,7 +195,7 @@ weapons.Missile = class
 
     fire()
     {
-        var missile = weapons.missiles.create(this.origin.x + this.offset.x, this.origin.y + this.offset.y, 'missile');
+        var missile = this.missiles.create(this.origin.x + this.offset.x, this.origin.y + this.offset.y, 'missile');
         missile.setDataEnabled();
 
         // snapshot the current target
@@ -260,7 +267,7 @@ weapons.Missile = class
         }
 
         var that = this;
-        weapons.missiles.children.iterate(function(missile) {
+        this.missiles.children.iterate(function(missile) {
             var localtarget = missile.data.get('target');
             if(localtarget != null && !localtarget.active)
             {
