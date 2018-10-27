@@ -359,14 +359,16 @@ weapons.Beam = class
         // snapshot the current target
         beam.data.set('target', this.target);
         beam.data.set('origin', this.origin);
-        beam.data.set('target-offset-x', rand.realInRange(this.target.body.width / -2, this.target.body.width / 2));
-        beam.data.set('target-offset-y', rand.realInRange(this.target.body.height / -2, this.target.body.height / 2));
+
 
         // anchor the beam in the middle of the closest point
         beam.setOrigin(0, 0.5);
 
         // calculate scale from origin to target, 1 beam pixel texture = 1 distance unit
         // also pick a random spot on the target
+        beam.data.set('target-offset-x', rand.realInRange(this.target.body.width / -2, this.target.body.width / 2));
+        beam.data.set('target-offset-y', rand.realInRange(this.target.body.height / -2, this.target.body.height / 2));
+
         var distance = Phaser.Math.Distance.Between(
         	beam.x, 
         	beam.y, 
@@ -395,11 +397,11 @@ weapons.Beam = class
 
     impact(beam, target, round)
     {
-
+    	// only generate an explosion at 15 FPS
     	if(round % 4 == 0)
         	particles.fireballGenerator(
-        		target.x + beam.data.get('target-offset-x') + rand.realInRange(-1, 1), 
-        		target.y + beam.data.get('target-offset-y') + rand.realInRange(-1, 1), 
+        		target.x + beam.data.get('target-offset-x'), 
+        		target.y + beam.data.get('target-offset-y'), 
         		target.x + target.body.velocity.x, 
         		target.y + target.body.velocity.y);
         //missile.destroy();
@@ -425,7 +427,7 @@ weapons.Beam = class
 
         if(this.target != null && !this.isFiring)
         {
-            this.beginFire(round);
+            this.beginFire();
         }
         
         if(this.target == null && this.isFiring)
