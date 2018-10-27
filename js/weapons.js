@@ -299,7 +299,7 @@ weapons.Beam = class
             cooldown: 20000,
             lifetime: 2000,
             velocity: 250, 
-            damage: 1, 
+            damage: 0.2, 
             offset: {x: 0, y: 0}
         });
 
@@ -352,10 +352,20 @@ weapons.Beam = class
         // snapshot the current target
         beam.data.set('target', this.target);
         beam.data.set('origin', this.origin);
+        beam.data.set('target-offset-x', rand.realInRange(this.target.body.width / -2, this.target.body.width / 2));
+        beam.data.set('target-offset-y', rand.realInRange(this.target.body.height / -2, this.target.body.height / 2));
 
+        // anchor the beam in the middle of the closest point
         beam.setOrigin(0, 0.5);
 
-        beam.setScale(1, 1000); // should be distance, 1 pixel per unit
+        // calculate scale from origin to target, 1 beam pixel texture = 1 distance unit
+        // also pick a random spot on the target
+        var distance = Phaser.Math.Distance.Between(
+        	beam.x, 
+        	beam.y, 
+        	this.target.x + beam.data.get('target-offset-x'), 
+        	this.target.y + beam.data.get('target-offset-y'));
+        beam.setScale(1, distance);
 
         var angle = Phaser.Math.Angle.BetweenPoints(beam, this.target) + (Math.PI * 0.5);
         beam.rotation = angle;
@@ -376,12 +386,17 @@ weapons.Beam = class
         this.audio.laserfire.play();
     }
 
-    impact(beam, target)
+    impact(beam, target, round)
     {
-        //particles.fireballGenerator(missile.x, missile.y, missile.x + missile.body.velocity.x, missile.y + missile.body.velocity.y);
+
+    	if(round % 4 == 0)
+        	particles.fireballGenerator(
+        		target.x + beam.data.get('target-offset-x') + rand.realInRange(-1, 1), 
+        		target.y + beam.data.get('target-offset-y') + rand.realInRange(-1, 1), 
+        		target.x + target.body.velocity.x, 
+        		target.y + target.body.velocity.y);
         //missile.destroy();
         //this.audio.laserimpact.play();
-        console.log("impact!");
         target.data.get('parent').damage(this.damage);
     }
 
@@ -389,7 +404,14 @@ weapons.Beam = class
     {
         // check if attached
         if(this.origin == null)
+        {
+        	// if not attached, destroy all beams
+        	 this.beams.children.iterate(function(beam) {
+        	 	beam.destroy();
+        	 })
+
             return;
+        }
 
         // returns null if no targets are in range
         this.target = this.sceneContext.selectBestTarget(this.origin, this.range);
@@ -420,21 +442,36 @@ weapons.Beam = class
         		return;
 
             var localtarget = beam.data.get('target');
+
+            // target was destroyed while evaluating
             if(localtarget != null && !localtarget.active)
             {
                 beam.destroy();
+                return;
             }
-            else if(beam != null && localtarget != null)
+
+            // active beam
+            if(beam != null && localtarget != null)
             {
+            	// update beam facing
                 var newangle = Phaser.Math.Angle.BetweenPoints(beam, localtarget)+ (Math.PI * 0.5);;
                 beam.rotation = newangle;
 
-                // manually call impact, since we are point-to-point hitting the ship, not overlapping
+                // update beam length
+                var distance = Phaser.Math.Distance.Between(
+		        	beam.x, 
+		        	beam.y, 
+		        	that.target.x + beam.data.get('target-offset-x'), 
+		        	that.target.y + beam.data.get('target-offset-y'));
 
-                that.impact(beam, beam.data.get('target'));
-            
-                //missile.setVelocity(newvelocity)
-                //that.sceneContext.physics.accelerateTo(missile, localtarget.x, localtarget.y, 60, 300, 300);
+        		beam.setScale(1, distance);
+
+        		// update beam speed (to keep it attached)
+        		beam.setVelocity(that.origin.body.velocity.x, that.origin.body.velocity.y);
+
+                // manually call impact, since we are point-to-point hitting the ship, not overlapping
+                that.impact(beam, beam.data.get('target'), round);
+          
             }
         })
 
