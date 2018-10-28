@@ -261,7 +261,7 @@
     battle.applyAcceleration = function(sprite, triggerSprite, slowestSpeed, topSpeed, acceleration)
     {
         // make sure bodies are still in play
-        if(sprite != null && triggerSprite != null && sprite.body != 'undefined' && triggerSprite.body != 'undefined')
+        if(sprite != null && triggerSprite != null && typeof sprite.body !== 'undefined' && typeof triggerSprite.body !== 'undefined')
         {
             // there is a target in range (not null)
             if(triggerSprite != null)
