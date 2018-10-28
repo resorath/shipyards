@@ -456,8 +456,11 @@ weapons.Beam = class
 
             // calculate scale from origin to target, 1 beam pixel texture = 1 distance unit
             // also pick a random spot on the target
+            
             beam.data.set('target-offset-x', rand.realInRange(this.target.body.width / -2, this.target.body.width / 2));
             beam.data.set('target-offset-y', rand.realInRange(this.target.body.height / -2, this.target.body.height / 2));
+            //beam.data.set('target-offset-x', 0);
+            //beam.data.set('target-offset-y', 0);
 
             var distance = Phaser.Math.Distance.Between(
             	beam.x, 
@@ -466,8 +469,7 @@ weapons.Beam = class
             	this.target.y + beam.data.get('target-offset-y'));
             beam.setScale(1, distance);
 
-            var angle = Phaser.Math.Angle.BetweenPoints(beam, this.target) + (Math.PI * 0.5);
-            beam.rotation = angle;
+            var angle = Phaser.Math.Angle.Between(beam.x, beam.y, this.target.x + beam.data.get('target-offset-x'), this.target.y + beam.data.get('target-offset-y'))+ (Math.PI * 0.5);;
 
             beam.setVelocity(this.origin.body.velocity.x, this.origin.body.velocity.y);        
 
@@ -560,7 +562,7 @@ weapons.Beam = class
             if(beam != null && localtarget != null)
             {
             	// update beam facing
-                var newangle = Phaser.Math.Angle.BetweenPoints(beam, localtarget)+ (Math.PI * 0.5);;
+                var newangle = Phaser.Math.Angle.Between(beam.x, beam.y, localtarget.x + beam.data.get('target-offset-x'), localtarget.y + beam.data.get('target-offset-y'))+ (Math.PI * 0.5);;
                 beam.rotation = newangle;
 
                 // update beam length
