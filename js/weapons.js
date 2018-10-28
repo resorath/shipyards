@@ -304,7 +304,7 @@ weapons.Beam = class
 
         options = setDefaults(options, {
             range: 5000,
-            cooldown: 25000,
+            cooldown: 35000,
             lifetime: 2000,
             velocity: 250, 
             damage: 0.2, 
@@ -337,9 +337,9 @@ weapons.Beam = class
             this.beamsuck.setScale(0.3);
 
             this.muzzleglow = this.sceneContext.add.image(20, 20, 'redparticle');
-            this.muzzleglow.setScale(0.5);
+            this.muzzleglow.setScale(0.8);
             this.muzzleglow.setAlpha(0);
-            this.muzzleglow.z = 20;
+            this.muzzleglow.depth = 20;
 
             emitter.on('update', this.update, this);
         }, callbackScope: this});
@@ -385,7 +385,7 @@ weapons.Beam = class
                 },
                 {
                     duration: 200,
-                    scale: 0,
+                    scale: 1,
                     alpha: 0.7
                 },
 
@@ -443,7 +443,7 @@ weapons.Beam = class
             if(this.origin == null || this.target == null)
                 return;
 
-            var beam = this.beams.create(this.origin.body.x + this.offset.x, this.origin.body.y + this.offset.y, 'purplebeam');
+            var beam = this.beams.create(this.origin.body.x + this.offset.x, this.origin.body.y + this.offset.y + 1, 'purplebeam');
 
             beam.setDataEnabled();
 
