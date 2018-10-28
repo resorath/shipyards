@@ -335,11 +335,12 @@ weapons.Beam = class
             this.beamsuck = this.sceneContext.add.particles('shapes',  new Function('return ' + this.sceneContext.cache.text.get('beamsuck'))());
             this.beamsuck.emitters.first.on = false;
             this.beamsuck.setScale(0.3);
+            this.beamsuck.z = 10;
 
             this.muzzleglow = this.sceneContext.add.image(20, 20, 'redparticle');
-            this.muzzleglow.setScale(0.3);
+            this.muzzleglow.setScale(0.5);
             this.muzzleglow.setAlpha(0);
-            console.log(this.muzzleglow);
+            this.muzzleglow.z = 20;
 
             emitter.on('update', this.update, this);
         }, callbackScope: this});
@@ -371,7 +372,7 @@ weapons.Beam = class
             ]
         })
 
-        var looptween;
+        var looptween = null;
         this.sceneContext.time.addEvent({delay: warmup, callback: function() {
             looptween = this.sceneContext.tweens.timeline({
                 targets: this.muzzleglow,
@@ -394,13 +395,15 @@ weapons.Beam = class
         }, callbackScope: this})
 
         this.sceneContext.time.addEvent({delay: warmup + runtime + cooldown, callback: function() {
-            destroy();
+            this.destroymuzzleglows();
         }, callbackScope: this})
 
-        function destroy()
+        this.destroymuzzleglows = function destroy()
         {
+            this.muzzleglow.setAlpha(0);
             fulltween.destroy();
-            looptween.destroy();
+            if(looptween != null)
+                looptween.destroy();
         }
     }
 
@@ -549,7 +552,7 @@ weapons.Beam = class
             {
 
                 beam.destroy();
-                this.muzzleglowanim.destroy();
+                that.destroymuzzleglows();
                 return;
             }
 
