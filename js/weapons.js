@@ -539,6 +539,7 @@ weapons.Beam = class
 
         }
 
+        // Update beams
         var that = this;
         this.beams.children.iterate(function(beam) {
         	if(beam == null)
