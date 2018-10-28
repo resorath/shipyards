@@ -335,7 +335,6 @@ weapons.Beam = class
             this.beamsuck = this.sceneContext.add.particles('shapes',  new Function('return ' + this.sceneContext.cache.text.get('beamsuck'))());
             this.beamsuck.emitters.first.on = false;
             this.beamsuck.setScale(0.3);
-            this.beamsuck.z = 10;
 
             this.muzzleglow = this.sceneContext.add.image(20, 20, 'redparticle');
             this.muzzleglow.setScale(0.5);
@@ -513,11 +512,11 @@ weapons.Beam = class
 
         // update beam emitter
         if(typeof this.beamsuck !== 'undefined')
-            this.beamsuck.setPosition(this.origin.body.x + this.offset.x, this.origin.body.y + this.offset.y);
+            this.beamsuck.setPosition(this.origin.body.x + this.offset.x, this.origin.body.y + this.offset.y, 100);
 
         // update muzzleglow
         if(typeof this.muzzleglow !== 'undefined')
-            this.muzzleglow.setPosition(this.origin.body.x + this.offset.x, this.origin.body.y + this.offset.y);
+            this.muzzleglow.setPosition(this.origin.body.x + this.offset.x, this.origin.body.y + this.offset.y, 200);
 
         if(this.target != null && !this.isFiring)
         {
