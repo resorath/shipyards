@@ -65,7 +65,7 @@ weapons.Laser = class
 
     fire()
     {
-    	if(this.target == null || this.target.body === 'undefined')
+    	if(this.target == null || typeof this.target.body === 'undefined')
     		return;
 
         var laser = this.lasers.create(this.origin.x + this.offset.x, this.origin.y + this.offset.y, 'laser');
@@ -86,6 +86,7 @@ weapons.Laser = class
         this.sceneContext.time.addEvent({ delay: this.lifetime, callback: function() {
             laser.destroy();
         }});
+
 
         // single target:
         //this.sceneContext.physics.add.overlap(laser, this.target, this.impact, null, this);
@@ -303,7 +304,7 @@ weapons.Beam = class
 
         options = setDefaults(options, {
             range: 5000,
-            cooldown: 20000,
+            cooldown: 25000,
             lifetime: 2000,
             velocity: 250, 
             damage: 0.2, 
@@ -327,7 +328,14 @@ weapons.Beam = class
 
         this.isFiring = false;
 
-        emitter.on('update', this.update, this);
+        // add the beamsuck particle emitter, but wait a little bit until the host is created
+        this.sceneContext.time.addEvent({delay: 100, callback: function() {
+            this.beamsuck = this.sceneContext.add.particles('shapes',  new Function('return ' + this.sceneContext.cache.text.get('beamsuck'))());
+            this.beamsuck.emitters.first.on = false;
+            this.beamsuck.setScale(0.3);
+
+            emitter.on('update', this.update, this);
+        }, callbackScope: this});
 
     }
 
@@ -335,6 +343,7 @@ weapons.Beam = class
     {
         emitter.removeListener('update', this.update, this);
         this.stopFire();
+        this.beamsuck.destroy();
         this.origin = null;
     }
 
@@ -348,51 +357,60 @@ weapons.Beam = class
         if(this.timer)
             this.timer.destroy();
         this.isFiring = false;
+
     }
 
     fire()
     {
-        var beam = this.beams.create(this.origin.x + this.offset.x, this.origin.y + this.offset.y, 'purplebeam');
 
-        beam.setDataEnabled();
+        // fire up the emitter
+        this.beamsuck.emitters.first.on = true;
 
-        // snapshot the current target
-        beam.data.set('target', this.target);
-        beam.data.set('origin', this.origin);
+        this.sceneContext.time.addEvent({delay: 1000, callback: function() {
+            this.beamsuck.emitters.first.on = false;
+        }, callbackScope: this})
 
+            
+        this.sceneContext.time.addEvent({delay: 2000, callback: function() {
 
-        // anchor the beam in the middle of the closest point
-        beam.setOrigin(0, 0.5);
+            if(this.origin == null)
+                return;
 
-        // calculate scale from origin to target, 1 beam pixel texture = 1 distance unit
-        // also pick a random spot on the target
-        beam.data.set('target-offset-x', rand.realInRange(this.target.body.width / -2, this.target.body.width / 2));
-        beam.data.set('target-offset-y', rand.realInRange(this.target.body.height / -2, this.target.body.height / 2));
+            var beam = this.beams.create(this.origin.x + this.offset.x, this.origin.y + this.offset.y, 'purplebeam');
 
-        var distance = Phaser.Math.Distance.Between(
-        	beam.x, 
-        	beam.y, 
-        	this.target.x + beam.data.get('target-offset-x'), 
-        	this.target.y + beam.data.get('target-offset-y'));
-        beam.setScale(1, distance);
+            beam.setDataEnabled();
 
-        var angle = Phaser.Math.Angle.BetweenPoints(beam, this.target) + (Math.PI * 0.5);
-        beam.rotation = angle;
+            // snapshot the current target
+            beam.data.set('target', this.target);
+            beam.data.set('origin', this.origin);
 
-        beam.setVelocity(this.origin.body.velocity.x, this.origin.body.velocity.y);
+            // anchor the beam in the middle of the closest point
+            beam.setOrigin(0, 0.5);
 
-        
+            // calculate scale from origin to target, 1 beam pixel texture = 1 distance unit
+            // also pick a random spot on the target
+            beam.data.set('target-offset-x', rand.realInRange(this.target.body.width / -2, this.target.body.width / 2));
+            beam.data.set('target-offset-y', rand.realInRange(this.target.body.height / -2, this.target.body.height / 2));
 
-        this.sceneContext.time.addEvent({ delay: this.lifetime, callback: function() {
-            beam.destroy();
-        }});
+            var distance = Phaser.Math.Distance.Between(
+            	beam.x, 
+            	beam.y, 
+            	this.target.x + beam.data.get('target-offset-x'), 
+            	this.target.y + beam.data.get('target-offset-y'));
+            beam.setScale(1, distance);
 
-        // single target:
-        //this.sceneContext.physics.add.overlap(laser, this.target, this.impact, null, this);
+            var angle = Phaser.Math.Angle.BetweenPoints(beam, this.target) + (Math.PI * 0.5);
+            beam.rotation = angle;
 
-        
+            beam.setVelocity(this.origin.body.velocity.x, this.origin.body.velocity.y);        
 
-        this.audio.laserfire.play();
+            this.sceneContext.time.addEvent({ delay: this.lifetime, callback: function() {
+                beam.destroy();
+            }, callbackScope: this});
+
+            this.audio.laserfire.play();
+
+        }, callbackScope: this});
     }
 
     impact(beam, target, round)
@@ -425,6 +443,10 @@ weapons.Beam = class
         // returns null if no targets are in range
         this.target = this.sceneContext.selectBestTarget(this.origin, this.range);
 
+        // update beam emitter
+        if(typeof this.beamsuck !== 'undefined')
+            this.beamsuck.setPosition(this.origin.x + this.offset.x, this.origin.y + this.offset.y);
+
         if(this.target != null && !this.isFiring)
         {
             this.beginFire();
@@ -443,6 +465,7 @@ weapons.Beam = class
             {
                 this.fire();
             }
+
         }
 
         var that = this;
@@ -455,7 +478,9 @@ weapons.Beam = class
             // target was destroyed while evaluating
             if(localtarget != null && !localtarget.active)
             {
+
                 beam.destroy();
+                
                 return;
             }
 

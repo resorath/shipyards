@@ -96,6 +96,9 @@
         this.load.audio('laserfire', 'assets/laser_fire.wav');
         this.load.audio('smallshipexplode', 'assets/small_ship_explode.wav');
 
+        this.load.atlas('shapes', 'assets/shapes.png', 'json/shapes.json');
+        this.load.text('beamsuck', 'json/beamsuck.json');
+
 
         battleui.scene.start();
     }
@@ -137,10 +140,13 @@
 
         particles.redburst = this.add.particles('redparticle');
 
+
         particles.rt = this.make.renderTexture({x:0, y:0, width: 50, height: 40}).setOrigin(0,0);
 
         shipyards.red.shipyard = new craft.Shipyard(this, "red", 250);
         shipyards.blue.shipyard = new craft.Shipyard(this, "blue", 250);
+
+        //particles.test = this.add.particles('shapes',  new Function('return ' + this.cache.text.get('beamsuck'))());
 
         /*this.time.addEvent({delay: 1000, callback: function() {
 
