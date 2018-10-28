@@ -65,9 +65,12 @@ craft.Shipyard = class
     {
 
         //@todo redo death animation
-        this.weapons.forEach(function(weapon){
-            weapon.destroy();
-        })
+        if(this.weapons != null)
+        {
+            this.weapons.forEach(function(weapon){
+                weapon.destroy();
+            })
+        }
         this.weapons = null;
 
         battle.cameras.main.pan(this.sprite.x, this.sprite.y, 2000)
