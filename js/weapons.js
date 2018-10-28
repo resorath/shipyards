@@ -308,7 +308,7 @@ weapons.Beam = class
             lifetime: 2000,
             velocity: 250, 
             damage: 0.2, 
-            offset: {x: 0, y: 0}
+            offset: {x: 20, y: 20}
         });
 
         this.range = options.range;
@@ -328,15 +328,80 @@ weapons.Beam = class
 
         this.isFiring = false;
 
+
+
         // add the beamsuck particle emitter, but wait a little bit until the host is created
         this.sceneContext.time.addEvent({delay: 100, callback: function() {
             this.beamsuck = this.sceneContext.add.particles('shapes',  new Function('return ' + this.sceneContext.cache.text.get('beamsuck'))());
             this.beamsuck.emitters.first.on = false;
             this.beamsuck.setScale(0.3);
 
+            this.muzzleglow = this.sceneContext.add.image(20, 20, 'redparticle');
+            this.muzzleglow.setScale(0.3);
+            this.muzzleglow.setAlpha(0);
+            console.log(this.muzzleglow);
+
             emitter.on('update', this.update, this);
         }, callbackScope: this});
 
+    }
+
+    createMuzzleGlow(warmup, runtime, cooldown)
+    {
+        var fulltween = this.sceneContext.tweens.timeline({
+            targets: this.muzzleglow,
+
+            tweens: [
+            {
+                duration: warmup,
+                scale: 3,
+                alpha: 1
+            },
+            {
+                duration: runtime,
+                scale: 3,
+                alpha: 1
+            },
+            {
+                duration: cooldown,
+                scale: 0.5,
+                alpha: 0
+            }
+
+            ]
+        })
+
+        var looptween;
+        this.sceneContext.time.addEvent({delay: warmup, callback: function() {
+            looptween = this.sceneContext.tweens.timeline({
+                targets: this.muzzleglow,
+                loop: Math.floor(400 / runtime),
+
+                tweens: [
+                {
+                    duration: 200,
+                    scale: 1.5,
+                    alpha: 1
+                },
+                {
+                    duration: 200,
+                    scale: 0,
+                    alpha: 0.7
+                },
+
+                ]
+            })
+        }, callbackScope: this})
+
+        this.sceneContext.time.addEvent({delay: warmup + runtime + cooldown, callback: function() {
+            destroy();
+        }, callbackScope: this})
+
+        function destroy()
+        {
+            fulltween.destroy();
+            looptween.destroy();
+        }
     }
 
     destroy()
@@ -354,8 +419,6 @@ weapons.Beam = class
 
     stopFire()
     {
-        if(this.timer)
-            this.timer.destroy();
         this.isFiring = false;
 
     }
@@ -366,17 +429,19 @@ weapons.Beam = class
         // fire up the emitter
         this.beamsuck.emitters.first.on = true;
 
+        // fire up the muzzleglow
+        this.muzzleglowanim = this.createMuzzleGlow(2000, this.lifetime, 1000);
+
         this.sceneContext.time.addEvent({delay: 1000, callback: function() {
             this.beamsuck.emitters.first.on = false;
         }, callbackScope: this})
 
-            
         this.sceneContext.time.addEvent({delay: 2000, callback: function() {
 
-            if(this.origin == null)
+            if(this.origin == null || this.target == null)
                 return;
 
-            var beam = this.beams.create(this.origin.x + this.offset.x, this.origin.y + this.offset.y, 'purplebeam');
+            var beam = this.beams.create(this.origin.body.x + this.offset.x, this.origin.body.y + this.offset.y, 'purplebeam');
 
             beam.setDataEnabled();
 
@@ -406,7 +471,7 @@ weapons.Beam = class
 
             this.sceneContext.time.addEvent({ delay: this.lifetime, callback: function() {
                 beam.destroy();
-            }, callbackScope: this});
+            }});
 
             this.audio.laserfire.play();
 
@@ -420,8 +485,8 @@ weapons.Beam = class
         	particles.fireballGenerator(
         		target.x + beam.data.get('target-offset-x'), 
         		target.y + beam.data.get('target-offset-y'), 
-        		target.x + target.body.velocity.x, 
-        		target.y + target.body.velocity.y);
+        		target.x + beam.data.get('target-offset-x') + target.body.velocity.x, 
+        		target.y + beam.data.get('target-offset-y') + target.body.velocity.y);
         //missile.destroy();
         //this.audio.laserimpact.play();
         target.data.get('parent').damage(this.damage);
@@ -445,7 +510,11 @@ weapons.Beam = class
 
         // update beam emitter
         if(typeof this.beamsuck !== 'undefined')
-            this.beamsuck.setPosition(this.origin.x + this.offset.x, this.origin.y + this.offset.y);
+            this.beamsuck.setPosition(this.origin.body.x + this.offset.x, this.origin.body.y + this.offset.y);
+
+        // update muzzleglow
+        if(typeof this.muzzleglow !== 'undefined')
+            this.muzzleglow.setPosition(this.origin.body.x + this.offset.x, this.origin.body.y + this.offset.y);
 
         if(this.target != null && !this.isFiring)
         {
@@ -480,7 +549,7 @@ weapons.Beam = class
             {
 
                 beam.destroy();
-                
+                this.muzzleglowanim.destroy();
                 return;
             }
 
@@ -495,8 +564,8 @@ weapons.Beam = class
                 var distance = Phaser.Math.Distance.Between(
 		        	beam.x, 
 		        	beam.y, 
-		        	that.target.x + beam.data.get('target-offset-x'), 
-		        	that.target.y + beam.data.get('target-offset-y'));
+		        	localtarget.x + beam.data.get('target-offset-x'), 
+		        	localtarget.y + beam.data.get('target-offset-y'));
 
         		beam.setScale(1, distance);
 
@@ -504,7 +573,7 @@ weapons.Beam = class
         		beam.setVelocity(that.origin.body.velocity.x, that.origin.body.velocity.y);
 
                 // manually call impact, since we are point-to-point hitting the ship, not overlapping
-                that.impact(beam, beam.data.get('target'), round);
+                that.impact(beam, localtarget, round);
           
             }
         })
