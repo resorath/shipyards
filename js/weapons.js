@@ -292,7 +292,6 @@ weapons.Missile = class
 
 }
 
-
 weapons.Beam = class
 {
     constructor(sceneContext, options)
@@ -304,7 +303,7 @@ weapons.Beam = class
 
         options = setDefaults(options, {
             range: 5000,
-            cooldown: 35000,
+            cooldown: 45000,
             lifetime: 2000,
             velocity: 250, 
             damage: 0.2, 
@@ -348,61 +347,75 @@ weapons.Beam = class
 
     createMuzzleGlow(warmup, runtime, cooldown)
     {
-        var fulltween = this.sceneContext.tweens.timeline({
+        var warmuptween = this.sceneContext.tweens.timeline({
             targets: this.muzzleglow,
 
             tweens: [
             {
                 duration: warmup,
-                scale: 3,
+                scaleX: 1,
+                scaleY: 1,
                 alpha: 1
             },
-            {
-                duration: runtime,
-                scale: 3,
-                alpha: 1
-            },
-            {
-                duration: cooldown,
-                scale: 0.5,
-                alpha: 0
-            }
 
             ]
         })
 
         var looptween = null;
-        this.sceneContext.time.addEvent({delay: warmup, callback: function() {
+        var looptweenevent = this.sceneContext.time.addEvent({delay: warmup, callback: function() {
+
             looptween = this.sceneContext.tweens.timeline({
                 targets: this.muzzleglow,
-                loop: Math.floor(400 / runtime),
+                loop: 50,
 
                 tweens: [
                 {
-                    duration: 200,
-                    scale: 1.5,
+                    duration: 500,
+                    scaleX: 0.9,
+                    scaleY: 0.9,
                     alpha: 1
                 },
                 {
-                    duration: 200,
-                    scale: 1,
-                    alpha: 0.7
+                    duration: 1000,
+                    scaleX: 1.1,
+                    scaleY: 1.1,
+                    alpha: 0.9
+                },
+                {
+                    duration: 500,
+                    scaleX: 0.9,
+                    scaleY: 0.9,
+                    alpha: 1
                 },
 
                 ]
             })
+
+
         }, callbackScope: this})
 
-        this.sceneContext.time.addEvent({delay: warmup + runtime + cooldown, callback: function() {
+        this.sceneContext.time.addEvent({delay: warmup + runtime, callback: function() {
             this.destroymuzzleglows();
         }, callbackScope: this})
 
-        this.destroymuzzleglows = function destroy()
+        var that = this;
+        this.destroymuzzleglows = function()
         {
-            this.muzzleglow.setAlpha(0);
-            fulltween.destroy();
+            warmuptween.stop();
+            looptweenevent.remove();
             if(looptween != null)
-                looptween.destroy();
+                looptween.stop();
+
+            that.sceneContext.tweens.timeline({
+                targets: that.muzzleglow,
+                tweens: [{
+                    duration: cooldown,
+                    scaleX: 0.1,
+                    scaleY: 0.1,
+                    alpha: 0
+                }]
+            })
+
         }
     }
 
@@ -432,13 +445,15 @@ weapons.Beam = class
         this.beamsuck.emitters.first.on = true;
 
         // fire up the muzzleglow
-        this.muzzleglowanim = this.createMuzzleGlow(2000, this.lifetime, 1000);
+        this.muzzleglowanim = this.createMuzzleGlow(2000, this.lifetime + 500, 1000);
 
+        // stop generating particles on muzzle glow 1 second later
         this.sceneContext.time.addEvent({delay: 1000, callback: function() {
             this.beamsuck.emitters.first.on = false;
         }, callbackScope: this})
 
-        this.sceneContext.time.addEvent({delay: 2000, callback: function() {
+        // start the firing sequence
+        this.sceneContext.time.addEvent({delay: 2500, callback: function() {
 
             if(this.origin == null || this.target == null)
                 return;
@@ -552,7 +567,7 @@ weapons.Beam = class
             // target was destroyed while evaluating
             if(localtarget != null && !localtarget.active)
             {
-
+                console.log("target destroyed");
                 beam.destroy();
                 that.destroymuzzleglows();
                 return;
