@@ -424,7 +424,8 @@ weapons.Beam = class
         emitter.removeListener('update', this.update, this);
         this.stopFire();
         this.beamsuck.destroy();
-        this.destroymuzzleglows();
+        if(typeof this.destroymuzzleglows === 'function')
+            this.destroymuzzleglows();
         this.beams.children.iterate(function(beam){
             beam.destroy();
         })

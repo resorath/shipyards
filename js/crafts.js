@@ -3,13 +3,63 @@ var craft = {}
 /** 
 Craft templates 
 **/
-craft.Shipyard = class
+craft.Ship = class
 {
     constructor(sceneContext, team, startY, options)
     {
         this.team = team;
         this.Y = startY;
         this.sceneContext = sceneContext;
+
+    }
+
+    static get Name() { return "Generic Ship" }
+    static get BuildTime() { return 10 }
+
+    applyOptions(options)
+    {
+
+        
+    }
+
+
+    damage(amount)
+    {
+        this.health -= amount;
+
+        if(this.health <= 0)
+        {
+            this.destroy();
+        }
+    }
+
+    update(round)
+    {
+
+    }
+
+    remove()
+    {
+
+    }
+
+    destroy()
+    {
+
+    }
+
+
+
+}
+
+
+craft.Shipyard = class extends craft.Ship
+{
+
+    constructor(sceneContext, team, startY, options)
+    {
+        super(sceneContext, team, startY, options);
+
 
         options = setDefaults(options, {
             scale: 1,
@@ -50,16 +100,6 @@ craft.Shipyard = class
 
     static get Name() { return "Shipyard" }
     static get BuildTime() { return 10000 }
-
-    damage(amount)
-    {
-        this.health -= amount;
-
-        if(this.health <= 0)
-        {
-            this.destroy();
-        }
-    }
 
     destroy()
     {
@@ -172,13 +212,11 @@ var teammodifiers = {
     }
 }
 
-craft.Fighter = class
+craft.Fighter = class extends craft.Ship
 {
     constructor(sceneContext, team, startY, options)
     {
-        this.team = team;
-        this.Y = startY;
-        this.sceneContext = sceneContext;
+        super(sceneContext, team, startY, options);
 
         options = setDefaults(options, {
             scale: 0.3,
@@ -222,16 +260,6 @@ craft.Fighter = class
 
     static get Name() { return "Fighter" }
     static get BuildTime() { return 1 }
-
-    damage(amount)
-    {
-        this.health -= amount;
-
-        if(this.health <= 0)
-        {
-            this.destroy();
-        }
-    }
 
     update(round)
     {
@@ -283,13 +311,11 @@ craft.Fighter = class
 
 }
 
-craft.Corvette = class
+craft.Corvette = class extends craft.Ship
 {
     constructor(sceneContext, team, startY, options)
     {
-        this.team = team;
-        this.Y = startY;
-        this.sceneContext = sceneContext;
+        super(sceneContext, team, startY, options);
 
         this.closestTarget = null;
 
@@ -340,16 +366,6 @@ craft.Corvette = class
     static get Name() { return "Corvette" }
     static get BuildTime() { return 5 }
 
-    damage(amount)
-    {
-        this.health -= amount;
-
-        if(this.health <= 0)
-        {
-            this.destroy();
-        }
-    }
-
     update(round)
     {
         // remove ships that wander out of bounds
@@ -361,7 +377,6 @@ craft.Corvette = class
         this.closestTarget = this.sceneContext.selectBestTarget(this.sprite, 500);
 
         this.sceneContext.applyAcceleration(this.sprite, this.closestTarget, this.baseVelocity / 3, this.baseVelocity, 0.2);
-
     }
 
     remove()
