@@ -15,7 +15,7 @@ weapons.Laser = class
 
         options = setDefaults(options, {
             range: 300,
-            cooldown: 500,
+            cooldown: 10,
             lifetime: 1000,
             velocity: 600, 
             damage: 5, 
@@ -28,6 +28,7 @@ weapons.Laser = class
         this.lifetime = options.lifetime;
         this.damage = options.damage;
         this.offset = options.offset;
+        this.nextFireShot = sceneContext.round;
 
         this.lasers = sceneContext.physics.add.group();
 
@@ -52,14 +53,14 @@ weapons.Laser = class
     beginFire()
     {
         this.isFiring = true;
-        this.timer = this.sceneContext.time.addEvent({ delay: this.cooldown, callback: this.fire, callbackScope: this, repeat: Number.MAX_SAFE_INTEGER});
+        //this.timer = this.sceneContext.time.addEvent({ delay: this.cooldown, callback: this.fire, callbackScope: this, repeat: Number.MAX_SAFE_INTEGER});
 
     }
 
     stopFire()
     {
-        if(this.timer)
-            this.timer.destroy();
+        //if(this.timer)
+        //    this.timer.destroy();
         this.isFiring = false;
     }
 
@@ -112,7 +113,7 @@ weapons.Laser = class
         target.data.get('parent').damage(this.damage);
     }
 
-    update()
+    update(round)
     {
         // check if attached
         if(this.origin == null)
@@ -129,6 +130,16 @@ weapons.Laser = class
         if(this.target == null && this.isFiring)
         {
             this.stopFire();
+        }
+
+        if(this.isFiring)
+        {
+            if(this.nextFireShot <= round)
+            {
+                this.nextFireShot = round + this.cooldown;
+                this.fire();
+            }
+
         }
 
     }
@@ -160,7 +171,7 @@ weapons.Missile = class
         this.lifetime = options.lifetime;
         this.damage = options.damage;
         this.offset = options.offset;
-        this.fireTimeOffset = 0//@DISABLERANDOM Phaser.Math.Between(-3, 3)
+        this.nextFireShot = sceneContext.round;
 
         this.missiles = sceneContext.physics.add.group();
 
@@ -259,12 +270,12 @@ weapons.Missile = class
 
         if(this.isFiring)
         {
-            var whenspawn = Math.round(this.cooldown / gamerules.buildTimeFactor) + this.fireTimeOffset;   
-            
-            if(round % whenspawn == 0)
+            if(this.nextFireShot <= round)
             {
+                this.nextFireShot = round + this.cooldown;
                 this.fire();
             }
+
         }
 
         var that = this;
@@ -303,7 +314,7 @@ weapons.Beam = class
 
         options = setDefaults(options, {
             range: 5000,
-            cooldown: 45000,
+            cooldown: 400,
             lifetime: 2000,
             velocity: 250, 
             damage: 0.2, 
@@ -316,7 +327,7 @@ weapons.Beam = class
         this.lifetime = options.lifetime;
         this.damage = options.damage;
         this.offset = options.offset;
-        this.fireTimeOffset = 0//@DISABLERANDOM Phaser.Math.Between(-3, 3)
+        this.nextFireShot = sceneContext.round//@DISABLERANDOM Phaser.Math.Between(-3, 3)
 
         this.beams = sceneContext.physics.add.group();
 
@@ -445,7 +456,6 @@ weapons.Beam = class
 
     fire()
     {
-
         // fire up the emitter
         this.beamsuck.emitters.first.on = true;
 
@@ -552,10 +562,9 @@ weapons.Beam = class
 
         if(this.isFiring)
         {
-            var whenspawn = Math.round(this.cooldown / gamerules.buildTimeFactor) + this.fireTimeOffset;   
-            
-            if(round % whenspawn == 0)
+            if(this.nextFireShot <= round)
             {
+                this.nextFireShot = round + this.cooldown;
                 this.fire();
             }
 

@@ -241,7 +241,7 @@ craft.Fighter = class extends craft.Ship
             direction: 0,
             name: '',
             weapons: [ 
-                new weapons.Laser(sceneContext, { range: 400, cooldown: 200, lifetime: 1000 })
+                new weapons.Laser(sceneContext, { range: 400, cooldown: 15, lifetime: 1000 })
             ],
             X: 1200, 
             health: 30
@@ -318,9 +318,9 @@ craft.Corvette = class extends craft.Ship
             name: '',
             weapons: [ 
                 new weapons.Beam(sceneContext),
-                new weapons.Laser(sceneContext, { range: 300, cooldown: 200, lifetime: 1000, offset: {x: -40, y: 0} }),
-                new weapons.Laser(sceneContext, { range: 300, cooldown: 200, lifetime: 1000, offset: {x: -10, y: 0} }),
-                new weapons.Laser(sceneContext, { range: 300, cooldown: 200, lifetime: 1000, offset: {x: 20, y: 0} }),
+                new weapons.Laser(sceneContext, { range: 300, cooldown: 15, lifetime: 1000, offset: {x: -40, y: 0} }),
+                new weapons.Laser(sceneContext, { range: 300, cooldown: 15, lifetime: 1000, offset: {x: -10, y: 0} }),
+                new weapons.Laser(sceneContext, { range: 300, cooldown: 15, lifetime: 1000, offset: {x: 20, y: 0} }),
                 new weapons.Missile(sceneContext, {})
             ],
             X: 1200, 
