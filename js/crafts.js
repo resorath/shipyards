@@ -18,7 +18,32 @@ craft.Ship = class
 
     applyOptions(options)
     {
+        // generic attributes
+        this.health = options.health;
+        this.baseVelocity = options.velocity;
+        this.weapons = options.weapons;
 
+        // team specific modifiers
+        options.direction = teammodifiers[this.team].direction;
+        options.X = teammodifiers[this.team].X;
+        options.velocity = options.velocity * teammodifiers[this.team].velocityMod;
+
+        // sprite options
+        this.sprite.setScale(options.scale);
+        this.sprite.name = options.name;
+        this.sprite.x = options.X;
+        this.sprite.y = this.Y
+
+        this.sprite.rotation += options.direction;
+        this.sprite.setVelocityX(options.velocity);
+
+        this.sprite.setDataEnabled();
+        this.sprite.data.set('parent', this);
+
+        var that = this;
+        this.weapons.forEach(function(weapon){
+            weapon.origin = that.sprite
+        })
         
     }
 
@@ -34,7 +59,12 @@ craft.Ship = class
     }
 
     update(round)
-    {
+    {        
+        // remove ships that wander out of bounds
+        if(this.sprite.x < -50 || this.sprite.y < -50 || this.sprite.x > config.width + 50 || this.sprite.y > config.height + 50)
+        {
+            this.remove();
+        }
 
     }
 
@@ -51,6 +81,22 @@ craft.Ship = class
 
 
 }
+
+
+var teammodifiers = {
+    red: {
+        direction: 0,
+        X: 1350,
+        velocityMod: -1
+    },
+
+    blue: {
+        direction: Math.PI,
+        X: 50,
+        velocityMod: 1
+    }
+}
+
 
 
 craft.Shipyard = class extends craft.Ship
@@ -71,31 +117,15 @@ craft.Shipyard = class extends craft.Ship
             health: 10000
         })
 
-        if(this.team == "blue")
-        {
-            options.X = 100
-        }
-        if(this.team == "red")
-        {
-        }
+        this.sprite = ships[this.team].create(0, 0, 'shipyard');
 
-        this.sprite = ships[this.team].create(options.X, this.Y, 'shipyard');
+        super.applyOptions(options);
+
+        //this.sprite = ships[this.team].create(options.X, this.Y, 'shipyard');
         //this.sprite.body.setCircle(72);
         this.sprite.body.setCircle(60);
-        this.sprite.setScale(options.scale);
-        this.sprite.name = options.name;
-        this.sprite.setDataEnabled();
 
-        this.sprite.data.set('parent', this);
 
-        this.health = options.health;
-
-        this.weapons = options.weapons;
-
-        var that = this;
-        this.weapons.forEach(function(weapon){
-            weapon.origin = that.sprite
-        })
     }
 
     static get Name() { return "Shipyard" }
@@ -198,19 +228,6 @@ craft.Shipyard = class extends craft.Ship
 
 }
 
-var teammodifiers = {
-    red: {
-        direction: 0,
-        X: 1350,
-        velocityMod: -1
-    },
-
-    blue: {
-        direction: Math.PI,
-        X: 50,
-        velocityMod: 1
-    }
-}
 
 craft.Fighter = class extends craft.Ship
 {
@@ -230,30 +247,9 @@ craft.Fighter = class extends craft.Ship
             health: 30
         })
 
-        // team specific modifiers
-        options.direction = teammodifiers[this.team].direction;
-        options.X = teammodifiers[this.team].X;
-        options.velocity = options.velocity * teammodifiers[this.team].velocityMod;
+        this.sprite = ships[this.team].create(0, 0, 'fighter');
 
-
-        this.sprite = ships[this.team].create(options.X, this.Y, 'fighter');
-        this.sprite.setScale(options.scale);
-        this.sprite.rotation += options.direction;
-        this.sprite.setVelocityX(options.velocity);
-        this.sprite.name = options.name;
-        this.sprite.setDataEnabled();
-
-        this.sprite.data.set('parent', this);
-
-
-        this.health = options.health;
-        this.baseVelocity = options.velocity;
-        this.weapons = options.weapons;
-
-        var that = this;
-        this.weapons.forEach(function(weapon){
-            weapon.origin = that.sprite
-        })
+        super.applyOptions(options);
 
         emitter.on('update', this.update, this);
     }
@@ -263,11 +259,7 @@ craft.Fighter = class extends craft.Ship
 
     update(round)
     {
-        // remove ships that wander out of bounds
-        if(this.sprite.x < -50 || this.sprite.y < -50 || this.sprite.x > config.width + 50 || this.sprite.y > config.height + 50)
-        {
-            this.remove();
-        }
+        super.update(round);
 
     }
 
@@ -335,29 +327,9 @@ craft.Corvette = class extends craft.Ship
             health: 500
         })
 
-        // team specific modifiers
-        options.direction = teammodifiers[this.team].direction;
-        options.X = teammodifiers[this.team].X;
-        options.velocity = options.velocity * teammodifiers[this.team].velocityMod;
+        this.sprite = ships[this.team].create(0, 0, 'corvette');
 
-        this.sprite = ships[this.team].create(options.X, this.Y, 'corvette');
-        this.sprite.setScale(options.scale);
-        this.sprite.rotation += options.direction;
-        this.sprite.setVelocityX(options.velocity);
-
-        this.sprite.name = options.name;
-        this.sprite.setDataEnabled();
-
-        this.sprite.data.set('parent', this);
-
-        this.health = options.health;
-        this.baseVelocity = options.velocity;
-        this.weapons = options.weapons;
-
-        var that = this;
-        this.weapons.forEach(function(weapon){
-            weapon.origin = that.sprite
-        })
+        super.applyOptions(options);
 
         emitter.on('update', this.update, this);
 
@@ -368,11 +340,7 @@ craft.Corvette = class extends craft.Ship
 
     update(round)
     {
-        // remove ships that wander out of bounds
-        if(this.sprite.x < -50 || this.sprite.y < -50 || this.sprite.x > config.width + 50 || this.sprite.y > config.height + 50)
-        {
-            this.remove();
-        }
+        super.update(round);
 
         this.closestTarget = this.sceneContext.selectBestTarget(this.sprite, 500);
 
