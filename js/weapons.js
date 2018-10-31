@@ -158,7 +158,7 @@ weapons.Missile = class
 
         options = setDefaults(options, {
             range: 1000,
-            cooldown: 20000,
+            cooldown: 300,
             lifetime: 5000,
             velocity: 250, 
             damage: 100, 
@@ -313,7 +313,7 @@ weapons.Beam = class
 
 
         options = setDefaults(options, {
-            range: 5000,
+            range: 500,
             cooldown: 400,
             lifetime: 2000,
             velocity: 250, 

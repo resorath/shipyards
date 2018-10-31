@@ -20,13 +20,14 @@ craft.Ship = class
     {
         // generic attributes
         this.health = options.health;
-        this.baseVelocity = options.velocity;
         this.weapons = options.weapons;
 
         // team specific modifiers
         options.direction = teammodifiers[this.team].direction;
         options.X = teammodifiers[this.team].X;
         options.velocity = options.velocity * teammodifiers[this.team].velocityMod;
+
+        this.baseVelocity = options.velocity;
 
         // sprite options
         this.sprite.setScale(options.scale);

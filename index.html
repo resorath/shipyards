@@ -266,7 +266,7 @@
     battle.applyAcceleration = function(sprite, triggerSprite, slowestSpeed, topSpeed, acceleration)
     {
         // make sure bodies are still in play
-        if(sprite != null && triggerSprite != null && typeof sprite.body !== 'undefined' && typeof triggerSprite.body !== 'undefined')
+        if(sprite != null && typeof sprite.body !== 'undefined')
         {
             // there is a target in range (not null)
             if(triggerSprite != null)
@@ -345,7 +345,7 @@
                 ] 
             },
             "bay 2": { 
-                selected: null, 
+                selected: craft.Fighter, 
                 button: undefined,
                 buildMultiplyer: 1.5,
                 xRange: { min: 280, max: 380},
@@ -357,7 +357,7 @@
         },
         "blue": {
             "bay 1": { 
-                selected: null, 
+                selected: craft.Corvette, 
                 button: undefined,
                 buildMultiplyer: 1,
                 xRange: { min: 180, max: 280},
@@ -368,7 +368,7 @@
                 ] 
             },
             "bay 2": { 
-                selected: craft.Corvette, 
+                selected: craft.Fighter, 
                 button: undefined,
                 buildMultiplyer: 1.5,
                 xRange: { min: 280, max: 380},
