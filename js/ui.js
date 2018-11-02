@@ -21,7 +21,7 @@ class Button
 
 		this.x = options.x;
 		this.y = options.y;
-		this.name = "Hello"
+		this.name = options.name;
 
 		this.clickCallback = options.clickCallback;
 		this.leaveCallback = options.leaveCallback;
@@ -76,6 +76,13 @@ class Button
 	setButtonFrame(frame)
 	{
 		this.sprite.frame = this.sceneContext.textures.getFrame('button', frame);
+	}
+
+	destroy()
+	{
+		this.text.destroy();
+		this.sprite.destroy();
+
 	}
 
 }

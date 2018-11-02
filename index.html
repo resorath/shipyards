@@ -310,24 +310,6 @@
     }
 
 
-    battleui.makeButton = function(name, x, y, callback)
-    {
-        var button = this.add.image(x, y, 'button', 1).setInteractive();
-        button.name = name;
-        button.setScale(2, 1.5);
-
-        button.setDataEnabled();
-        button.data.set('callback', callback);
-
-        var text = this.add.bitmapText(x - 40, y - 8, 'nokia', name, 16);
-        text.x += (button.width - text.width) / 2;
-
-        //var text = this.add.text(x - 40, y - 8, name, {fontSize: 16, fill: '#000'});
-        //text.x += (button.width - text.width) / 2;
-
-        return {button, text};
-    }
-
     battleui.setButtonFrame = function(button, frame)
     {
         button.frame = button.scene.textures.getFrame('button', frame);
@@ -390,36 +372,19 @@
 
     battleui.create = function() {
 
-
-        this.input.on('gameobjectover', function (pointer, button)
-        {
-            this.setButtonFrame(button, 0);
-        }, this);
-        this.input.on('gameobjectout', function (pointer, button)
-        {
-            this.setButtonFrame(button, 1);
-        }, this);
-        this.input.on('gameobjectdown', function (pointer, button)
-        {
-            this.setButtonFrame(button, 2);
-            
-            button.data.get('callback')(button);
-
-        }, this);
-        this.input.on('gameobjectup', function (pointer, button)
-        {
-            this.setButtonFrame(button, 0);
-        }, this);
-
         var x = 100;
         for(var bay in bays[playercolour])
         {
-            bays[playercolour][bay].button = this.makeButton(bay, x, 650, this.topLevelClick);
-
+            //bays[playercolour][bay].button = this.makeButton(bay, x, 650, this.topLevelClick);
+            bays[playercolour][bay].button = new Button(this, {
+                name: bay,
+                x, 
+                y: 650,
+                clickCallback: this.topLevelClick
+            })
             x += 160;
         }
 
-        //this.makeButton('shot', 100, 650, function() { if(battle.scene.isActive()) {battle.scene.pause()}else{battle.scene.resume()} } );
     }
 
     battleui.activeSubMenu = [];
@@ -429,16 +394,25 @@
         
         var x = button.x + 20;
         var y = 620;
-        
+
 
         bays[playercolour][button.name].available.forEach(function(craft) {
             var buttonset;
             if(craft == null)
-                buttonset = battleui.makeButton("Empty", x, y, battleui.secondLevelClick);
+                buttonset = new Button(battleui, {
+                    name: "Empty",
+                    x, 
+                    y, 
+                    clickCallback: battleui.secondLevelClick});
             else
-                buttonset = battleui.makeButton(craft.Name, x, y, battleui.secondLevelClick);
-            buttonset.button.data.set('craft', craft);
-            buttonset.button.data.set('parent', button.name);
+                buttonset = new Button(battleui, {
+                    name: craft.Name, 
+                    x, 
+                    y, 
+                    clickCallback: battleui.secondLevelClick});
+
+            buttonset.craft = craft;
+            buttonset.parent = button.name;
             
             battleui.activeSubMenu.push(buttonset);
 
@@ -452,9 +426,9 @@
     {
         battle.scene.resume();
 
-        var parentname = button.data.get('parent');
+        var parentname = button.parent;
         var parent = bays[playercolour][parentname].button;
-        var craft = button.data.get('craft');
+        var craft = button.craft;
 
         if(craft == null)
             parent.text.setText("Empty");
@@ -464,8 +438,7 @@
         bays[playercolour][parentname].selected = craft;
 
         battleui.activeSubMenu.forEach(function(subelement) {
-            subelement.button.destroy();
-            subelement.text.destroy();            
+            subelement.destroy();  
         })
 
         battleui.activeSubMenu = [];
