@@ -183,11 +183,26 @@
                     bayinfo.buildMultipler = the build time multiplyer penalty of the bay (bigger = slower)
                     gamerules.buildTimeFactor = The global relationship between update speed and build times
                     */
-                    var spawntime = bayinfo.buildMultiplyer * bayinfo.selected.BuildTime * gamerules.buildTimeFactor;   
-                    
+
+                    var spawntime = bayinfo.buildMultiplyer * bayinfo.selected.craft.BuildTime * gamerules.buildTimeFactor;   
+        
                     if(battle.round % spawntime == 0)
                     {
-                        new bayinfo.selected(this, player, Phaser.Math.Between(bayinfo.xRange.min, bayinfo.xRange.max));
+                        var weapons = [];
+
+                        // create the weapons
+                        bayinfo.selected.weapons.forEach( function(item) {
+                            weapons.push(new item.weapon(this, item.options));
+                        }, this);
+
+                        new bayinfo.selected.craft(
+                            this, 
+                            player, 
+                            Phaser.Math.Between(bayinfo.xRange.min, bayinfo.xRange.max),
+                            {
+                                weapons
+                            }
+                        );
                     }
                 }
 
@@ -318,14 +333,34 @@
     var bays = {
         "red": {
             "bay 1": { 
-                selected: craft.Corvette, 
+                selected: null, 
                 button: undefined,
                 buildMultiplyer: 1,
                 xRange: { min: 180, max: 280},
                 available: [
                     null,
-                    craft.Fighter,
-                    craft.Corvette    
+                    {
+                        craft: craft.Fighter,
+                        weapons: [ 
+                            { 
+                                weapon: weapons.Laser, 
+                                options: { range: 400, cooldown: 15, lifetime: 1000 }
+                            }
+                        ],
+                    },
+                    {
+                        craft: craft.Corvette,
+                        weapons: [
+                            { 
+                                weapon: weapons.Laser, 
+                                options: { range: 400, cooldown: 15, lifetime: 1000 }
+                            },
+                            { 
+                                weapon: weapons.Laser, 
+                                options: { range: 400, cooldown: 15, lifetime: 1000 }
+                            }
+                        ]
+                    },
                 ] 
             },
             "bay 2": { 
@@ -335,13 +370,39 @@
                 xRange: { min: 280, max: 380},
                 available: [
                     null,
-                    craft.Fighter    
+                    {
+                        craft: craft.Fighter,
+                        weapons: [ 
+                            { 
+                                weapon: weapons.Laser, 
+                                options: { range: 400, cooldown: 15, lifetime: 1000 }
+                            }
+                        ],
+                    },
+                    {
+                        craft: craft.Corvette,
+                        weapons: [
+                            { 
+                                weapon: weapons.Laser, 
+                                options: { range: 400, cooldown: 15, lifetime: 1000 }
+                            }
+                        ]
+                    },
                 ] 
             },
         },
         "blue": {
             "bay 1": { 
-                selected: craft.Corvette, 
+                selected:                    
+                    {
+                        craft: craft.Fighter,
+                        weapons: [ 
+                            { 
+                                weapon: weapons.Laser, 
+                                options: { range: 400, cooldown: 15, lifetime: 1000 }
+                            }
+                        ],
+                    },
                 button: undefined,
                 buildMultiplyer: 1,
                 xRange: { min: 180, max: 280},
@@ -396,9 +457,9 @@
         var y = 620;
 
 
-        bays[playercolour][button.name].available.forEach(function(craft) {
+        bays[playercolour][button.name].available.forEach(function(availablecraft) {
             var buttonset;
-            if(craft == null)
+            if(availablecraft == null)
                 buttonset = new Button(battleui, {
                     name: "Empty",
                     x, 
@@ -406,12 +467,12 @@
                     clickCallback: battleui.secondLevelClick});
             else
                 buttonset = new Button(battleui, {
-                    name: craft.Name, 
+                    name: availablecraft.craft.Name, 
                     x, 
                     y, 
                     clickCallback: battleui.secondLevelClick});
 
-            buttonset.craft = craft;
+            buttonset.availablecraft = availablecraft;
             buttonset.parent = button.name;
             
             battleui.activeSubMenu.push(buttonset);
@@ -428,14 +489,14 @@
 
         var parentname = button.parent;
         var parent = bays[playercolour][parentname].button;
-        var craft = button.craft;
+        var availablecraft = button.availablecraft;
 
         if(craft == null)
             parent.text.setText("Empty");
         else
-            parent.text.setText(craft.Name);
+            parent.text.setText(availablecraft.craft.Name);
 
-        bays[playercolour][parentname].selected = craft;
+        bays[playercolour][parentname].selected = availablecraft;
 
         battleui.activeSubMenu.forEach(function(subelement) {
             subelement.destroy();  
