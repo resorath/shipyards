@@ -33,8 +33,11 @@
 
     'use strict';
 
+    var preloader = new Phaser.Scene('preloader');
+
     var battle = new Phaser.Scene('Battle');
     var battleui = new Phaser.Scene('BattleUI');
+
 
     var emitter = new Phaser.Events.EventEmitter();
     var rand = new Phaser.Math.RandomDataGenerator();
@@ -51,7 +54,7 @@
                 debug: false
             }
         },
-        scene: [managerui, battle, battleui]
+        scene: [preloader, managerui, battle, battleui]
     };
 
 
@@ -87,8 +90,7 @@
         }
     }
 
-
-    battle.preload = function()
+    preloader.preload = function()
     {
         this.load.image('shipyard', 'assets/shipyard.png');
         this.load.image('fighter', 'assets/fighter.png');
@@ -106,7 +108,18 @@
         this.load.atlas('shapes', 'assets/shapes.png', 'json/shapes.json');
         this.load.text('beamsuck', 'json/beamsuck.json');
 
+        this.load.spritesheet('button', 'assets/flixel-button.png', { frameWidth: 80, frameHeight: 20 });
+        this.load.bitmapFont('nokia', 'assets/nokia16black.png', 'https://labs.phaser.io/assets/fonts/bitmap/nokia16black.xml');
 
+    }
+
+    preloader.create = function()
+    {
+        this.scene.start('ManagerUI');
+    }
+
+    battle.preload = function()
+    {
         battleui.scene.start();
     }
 

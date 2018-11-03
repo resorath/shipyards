@@ -1,15 +1,20 @@
-class managerui extends Phaser.Scene 
-{
+var managerui = new Phaser.Class({
 
 
-	preload()
+	Extends: Phaser.Scene,
+
+    initialize:
+
+	function managerui()
+    {
+    	Phaser.Scene.call(this, {key: 'ManagerUI'});
+    },
+
+	preload: function()
 	{
-		this.load.spritesheet('button', 'assets/flixel-button.png', { frameWidth: 80, frameHeight: 20 });
-        this.load.bitmapFont('nokia', 'assets/nokia16black.png', 'https://labs.phaser.io/assets/fonts/bitmap/nokia16black.xml');
+ 	},
 
-	}
-
-	create()
+	create: function()
 	{
 		this.linegraphics = this.add.graphics({ lineStyle: { width: 3, color: 0xffffff, alpha: 0.5 } });
 		var boxgraphics = this.add.graphics({ fillStyle: { color: 0x000000 } });
@@ -30,9 +35,9 @@ class managerui extends Phaser.Scene
             scalex: 3,
             scaley: 5
         })*/
-	}
+	},
 
-	update()
+	update: function()
 	{
 		this.round ++ 
 
@@ -60,5 +65,5 @@ class managerui extends Phaser.Scene
 		}
 	}
 
-};
+});
 
