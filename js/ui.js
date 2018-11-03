@@ -6,9 +6,11 @@ class Button
 
 	constructor(sceneContext, options)
 	{
-		setDefaults(options, {
+		options = setDefaults(options, {
 			x: 0,
 			y: 0,
+			scalex: 2,
+			scaley: 1.5,
 			name: "untitled",
 			sceneContext: 'undefined'
 		})
@@ -21,6 +23,8 @@ class Button
 
 		this.x = options.x;
 		this.y = options.y;
+		this.scalex = options.scalex;
+		this.scaley = options.scaley;
 		this.name = options.name;
 
 		this.clickCallback = options.clickCallback;
@@ -29,8 +33,7 @@ class Button
 		this.sceneContext = sceneContext;
 		
 		this.sprite = sceneContext.add.image(this.x, this.y, 'button', Button.BUTTON_UP).setInteractive();
-
-		this.sprite.setScale(2, 1.5);
+		this.sprite.setScale(this.scalex, this.scaley);
 
 		this.text = this.sceneContext.add.bitmapText(this.x - 40, this.y - 8, 'nokia', this.name, 16);
         this.text.x += (this.sprite.width - this.text.width) / 2;

@@ -51,7 +51,7 @@
                 debug: false
             }
         },
-        scene: [battle, battleui]
+        scene: [managerui, battle, battleui]
     };
 
 
@@ -324,11 +324,6 @@
 
     }
 
-
-    battleui.setButtonFrame = function(button, frame)
-    {
-        button.frame = button.scene.textures.getFrame('button', frame);
-    }
 
     var bays = {
         "red": {
