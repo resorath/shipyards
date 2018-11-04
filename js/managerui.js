@@ -1,10 +1,26 @@
 var managerui = new Phaser.Scene('ManagerUI');
 
-managerui.addBar = function(barContainer, x, y)
+managerui.addBar = function(barContainer, x, y, maximum)
 {
-	var bar = this.add.image(x, y, 'symbols', 'barsVertical');
+	if(barContainer.length > maximum - 1)
+		return;
 
-	barcontainer.push(bar);
+	var newx = x + 36 * barContainer.length + 5;
+
+	var bar = this.add.image(newx, y, 'symbols', 'barsVertical');
+
+	barContainer.push(bar);
+
+},
+
+
+managerui.removeBar = function(barContainer)
+{
+	if(barContainer.length == 0)
+		return;
+
+	var bar = barContainer.pop();
+	bar.destroy();
 
 },
 
@@ -84,7 +100,7 @@ managerui.create = function()
         scaley: 1,
         spriteid: 'symbols',
         clickCallback: function() {
-        	console.log("yo yo left");
+        	managerui.removeBar(managerui.shieldLevels);
         },
         frameid: {
         	up: "minus",
@@ -95,13 +111,13 @@ managerui.create = function()
 
     this.shields_increase = new Button(this, {
         name: "",
-        x: 1000,
+        x: 980,
         y: 450,
         scalex: 1,
         scaley: 1,
         spriteid: 'symbols',
         clickCallback: function() {
-        	this.addBar(this.shieldLevels, 20, 20);
+        	managerui.addBar(managerui.shieldLevels, 660, 450, 8);
         },
         frameid: {
         	up: "plus",
@@ -118,7 +134,7 @@ managerui.create = function()
         scaley: 1,
         spriteid: 'symbols',
         clickCallback: function() {
-        	console.log("yo yo left");
+        	managerui.removeBar(managerui.energyLevels);
         },
         frameid: {
         	up: "minus",
@@ -129,13 +145,13 @@ managerui.create = function()
 
     this.energy_increase = new Button(this, {
         name: "",
-        x: 1000,
+        x: 980,
         y: 550,
         scalex: 1,
         scaley: 1,
         spriteid: 'symbols',
         clickCallback: function() {
-        	console.log("yo yo right");
+        	managerui.addBar(managerui.energyLevels, 660, 550, 8);
         },
         frameid: {
         	up: "plus",
