@@ -1,9 +1,5 @@
 class Button
 {
-	static get BUTTON_DOWN() { return 2; }
-	static get BUTTON_HOVER() { return 0; }
-	static get BUTTON_UP() { return 1; }
-
 	constructor(sceneContext, options)
 	{
 		options = setDefaults(options, {
@@ -12,7 +8,13 @@ class Button
 			scalex: 2,
 			scaley: 1.5,
 			name: "untitled",
-			sceneContext: 'undefined'
+			sceneContext: 'undefined',
+			spriteid: 'button',
+			frameid: {
+				up: 1,
+				down: 2,
+				hover: 0
+			}
 		})
 
 		if(typeof options.leaveCallback === 'undefined')
@@ -26,13 +28,15 @@ class Button
 		this.scalex = options.scalex;
 		this.scaley = options.scaley;
 		this.name = options.name;
+		this.spriteid = options.spriteid;
+		this.frameid = options.frameid;
 
 		this.clickCallback = options.clickCallback;
 		this.leaveCallback = options.leaveCallback;
 
 		this.sceneContext = sceneContext;
 		
-		this.sprite = sceneContext.add.image(this.x, this.y, 'button', Button.BUTTON_UP).setInteractive();
+		this.sprite = sceneContext.add.image(this.x, this.y, this.spriteid, this.frameid.up).setInteractive();
 		this.sprite.setScale(this.scalex, this.scaley);
 
 		this.text = this.sceneContext.add.bitmapText(this.x - 40, this.y - 8, 'nokia', this.name, 16);
@@ -44,14 +48,14 @@ class Button
         	if(button != this.sprite)
         		return;
 
-            this.setButtonFrame(Button.BUTTON_HOVER);
+            this.setButtonFrame(this.frameid.hover);
         }, this);
         this.sceneContext.input.on('gameobjectout', function (pointer, button)
         {
         	if(button != this.sprite)
         		return;
 
-            this.setButtonFrame(Button.BUTTON_UP);
+            this.setButtonFrame(this.frameid.up);
 
             this.leaveCallback(this);
 
@@ -61,7 +65,7 @@ class Button
         	if(button != this.sprite)
         		return;
 
-            this.setButtonFrame(Button.BUTTON_DOWN);
+            this.setButtonFrame(this.frameid.down);
             
             this.clickCallback(this);
 
@@ -71,14 +75,14 @@ class Button
         	if(button != this.sprite)
         		return;
 
-            this.setButtonFrame(Button.BUTTON_HOVER);
+            this.setButtonFrame(this.frameid.hover);
         }, this);
 
 	}
 
 	setButtonFrame(frame)
 	{
-		this.sprite.frame = this.sceneContext.textures.getFrame('button', frame);
+		this.sprite.frame = this.sceneContext.textures.getFrame(this.spriteid, frame);
 	}
 
 	destroy()

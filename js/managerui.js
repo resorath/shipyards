@@ -34,13 +34,35 @@ var managerui = new Phaser.Class({
 
 		this.physics.add.sprite(250, 300, 'fighter');
 
-		/*new Button(this, {
-            name: "cats",
-            x: 400,
-            y: 400,
-            scalex: 3,
-            scaley: 5
-        })*/
+
+
+		var shipselect_left = new Button(this, {
+            name: "",
+            x: 60,
+            y: 300,
+            scalex: 1,
+            scaley: 1,
+            spriteid: 'symbols',
+            frameid: {
+            	up: "arrowLeft",
+            	down: "arrowLeft",
+            	hover: "arrowLeft",
+            }
+        })
+
+       	var shipselect_left = new Button(this, {
+            name: "",
+            x: 435,
+            y: 300,
+            scalex: 1,
+            scaley: 1,
+            spriteid: 'symbols',
+            frameid: {
+            	up: "arrowRight",
+            	down: "arrowRight",
+            	hover: "arrowRight",
+            }
+        })
 	},
 
 	update: function()
