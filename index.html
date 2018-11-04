@@ -114,6 +114,8 @@
         this.load.atlasXML('symbols', 'assets/sheet_white1x.png', 'assets/sheet_white1x.xml');
         this.load.bitmapFont('nokia', 'assets/nokia16black.png', 'https://labs.phaser.io/assets/fonts/bitmap/nokia16black.xml');
 
+        this.load.image('icon-laser', 'assets/icons/tesla-turret.png');
+        this.load.image('icon-missile', 'assets/icons/cannon-shot.png');
     }
 
     preloader.create = function()
@@ -338,6 +340,59 @@
             }
         }
 
+    }
+
+
+    var weaponConfig = {
+
+        "Classic Laser":
+        {
+            weapon: weapons.Laser,
+            options: { range: 400, cooldown: 15, lifetime: 1000 },
+            energy: 1,
+            icon: 'icon-laser',
+            fits: [ craft.Fighter, craft.Corvette ]
+        },
+
+        "MX-01 Missile":
+        {
+            weapon: weapons.Missile,
+            options: { range: 400, cooldown: 15, lifetime: 1000 },
+            energy: 1,
+            icon: 'icon-missile',
+            fits: [ craft.Corvette ]
+        }
+
+
+
+    }
+
+
+    /* Bay build config 
+        copies into bays below
+
+        craft: prototype object from craft.*
+        name: Display name shown in shipyard manager
+        weapons: list of weapons in formation: weapon (from weapons.*, options, energy req)
+        shields: HP multiplier
+        energy: Used for weapon assignment
+        description: Description shown in shipyard manager
+    */
+    var bayBuildConfig = {
+        "red": [
+            {
+                craft: craft.Fighter,
+                sprite: 'fighter',
+                name: "Fighter",
+                weapons: [
+                    weaponConfig["Classic Laser"],
+                    null
+                ],
+                shields: 2,
+                energy: 2,
+                description: "Lorem ipsum"
+            }
+        ]
     }
 
 

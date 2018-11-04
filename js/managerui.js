@@ -26,14 +26,59 @@ managerui.removeBar = function(barContainer)
 
 managerui.preload = function()
 {
-	},
+},
+
+managerui.loadship = function(team, index)
+{
+	var config = bayBuildConfig[team][index];
+
+
+	this.shipname.text = config.name;
+	this.shipdescription.text = config.description;
+
+	for(var i = 0; i < config.shields; i++)
+		this.addBar(this.shieldLevels, 660, 450, 8);
+
+	for(i = 0; i < config.energy; i++)
+		this.addBar(this.energyLevels, 660, 550, 8);
+
+	config.weapons.forEach(function(weapon)
+	{
+		for(var availableweapon in weaponConfig)
+		{
+			var aw = weaponConfig[availableweapon];
+
+			// current active weapon
+			if(aw == weapon)
+			{
+				console.log("active found")
+			}
+
+			// check if weapon is eligible
+			if(aw.fits.includes(config.craft))
+				continue;
+
+			// show weapon as option
+			console.log("non-active found")
+
+		}
+
+	}, this);
+
+
+}
 
 managerui.create = function()
 {
+
+	// visuals
 	this.linegraphics = this.add.graphics({ lineStyle: { width: 3, color: 0xffffff, alpha: 0.5 } });
 	var boxgraphics = this.add.graphics({ fillStyle: { color: 0x000000 } });
-
 	this.lines = [];
+	var rect = new Phaser.Geom.Rectangle(400, 190, 600, 220);
+	var rect2 = new Phaser.Geom.Rectangle(0, 190, 100, 220);
+	boxgraphics.fillRectShape(rect);
+	boxgraphics.fillRectShape(rect2);
 
 	// static text
 	this.add.bitmapText(400, 30, 'nokia', 'Shipyard Manager', 32).setTintFill(0xffffff);
@@ -45,10 +90,6 @@ managerui.create = function()
 	this.shipname = this.add.bitmapText(220, 140, 'nokia', 'Fighter', 22).setTintFill(0xffffff);
 	this.shipdescription = this.add.bitmapText(30, 500, 'nokia', 'Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum\nLorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum\nLorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum\nLorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum\n', 16).setTintFill(0xffffff);
 
-	var rect = new Phaser.Geom.Rectangle(400, 190, 600, 220);
-	var rect2 = new Phaser.Geom.Rectangle(0, 190, 100, 220);
-	boxgraphics.fillRectShape(rect);
-	boxgraphics.fillRectShape(rect2);
 
 	this.round = 0;
 
@@ -166,6 +207,7 @@ managerui.update = function()
 {
 	this.round++; 
 
+	/* Line visuals */
 	if(this.round % 10 == 0)
 	{
 		var y = Phaser.Math.Between(200, 400);
@@ -188,5 +230,6 @@ managerui.update = function()
 		else
 			this.linegraphics.strokeLineShape(this.lines[i]);
 	}
+	/* ENDS Line visuals */
 }
 
