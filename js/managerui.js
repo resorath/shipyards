@@ -42,26 +42,74 @@ managerui.loadship = function(team, index)
 	for(i = 0; i < config.energy; i++)
 		this.addBar(this.energyLevels, 660, 550, 8);
 
+	var x = 620;
+	var y = 170;
 	config.weapons.forEach(function(weapon)
 	{
+		// add null option
+		b = new Button(this, {
+			name: "",
+			x,
+			y,
+			scalex: 1,
+			scaley: 1,
+	        spriteid: 'symbols',
+	        frameid: {
+	        	up: "cross",
+	        	down: "cross",
+	        	hover: "cross",
+	        }
+		})
+
+		if(weapon == null)
+			b.sprite.setTint(0x00ff00);
+
+		x += 50;
+
+
 		for(var availableweapon in weaponConfig)
 		{
 			var aw = weaponConfig[availableweapon];
+			var b;
 
 			// current active weapon
 			if(aw == weapon)
 			{
-				console.log("active found")
+				b = new Button(this, {
+					name: "",
+					x,
+					y,
+					scalex: 0.08,
+					scaley: 0.08,
+					spriteid: aw.icon
+				})
+
+				b.sprite.setTint(0x00ff00);
 			}
 
 			// check if weapon is eligible
-			if(aw.fits.includes(config.craft))
+			else if(!aw.fits.includes(config.craft))
 				continue;
 
+			else
+			{
 			// show weapon as option
-			console.log("non-active found")
+				b = new Button(this, {
+						name: "",
+						x,
+						y,
+						scalex: 0.08,
+						scaley: 0.08,
+						spriteid: aw.icon
+					})
+			}
+
+			x += 50;
 
 		}
+
+		x = 620;
+		y += 50;
 
 	}, this);
 

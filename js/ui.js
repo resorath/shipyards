@@ -36,7 +36,7 @@ class Button
 
 		this.sceneContext = sceneContext;
 		
-		this.sprite = sceneContext.add.image(this.x, this.y, this.spriteid, this.frameid.up).setInteractive( { useHandCursor: true });
+		this.sprite = sceneContext.add.sprite(this.x, this.y, this.spriteid, this.frameid.up).setInteractive( { useHandCursor: true });
 		this.sprite.setScale(this.scalex, this.scaley);
 
 		this.text = this.sceneContext.add.bitmapText(this.x - 40, this.y - 8, 'nokia', this.name, 16);
