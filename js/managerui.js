@@ -23,10 +23,16 @@ var managerui = new Phaser.Class({
 
 		this.add.bitmapText(400, 30, 'nokia', 'Build your fleet!', 32).setTintFill(0xffffff);
 
-		var rect = new Phaser.Geom.Rectangle(600, 190, 400, 220);
+		this.shipname = this.add.bitmapText(220, 140, 'nokia', 'Fighter', 22).setTintFill(0xffffff);
+
+		var rect = new Phaser.Geom.Rectangle(400, 190, 600, 220);
+		var rect2 = new Phaser.Geom.Rectangle(0, 190, 100, 220);
 		boxgraphics.fillRectShape(rect);
+		boxgraphics.fillRectShape(rect2);
 
 		this.round = 0;
+
+		this.physics.add.sprite(250, 300, 'fighter');
 
 		/*new Button(this, {
             name: "cats",
@@ -39,7 +45,7 @@ var managerui = new Phaser.Class({
 
 	update: function()
 	{
-		this.round ++ 
+		this.round++; 
 
 		if(this.round % 10 == 0)
 		{
