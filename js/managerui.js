@@ -25,6 +25,8 @@ var managerui = new Phaser.Class({
 
 		this.shipname = this.add.bitmapText(220, 140, 'nokia', 'Fighter', 22).setTintFill(0xffffff);
 
+		this.shipdescription = this.add.bitmapText(30, 500, 'nokia', 'Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum\nLorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum\nLorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum\nLorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum\n', 16).setTintFill(0xffffff);
+
 		var rect = new Phaser.Geom.Rectangle(400, 190, 600, 220);
 		var rect2 = new Phaser.Geom.Rectangle(0, 190, 100, 220);
 		boxgraphics.fillRectShape(rect);
@@ -36,13 +38,16 @@ var managerui = new Phaser.Class({
 
 
 
-		var shipselect_left = new Button(this, {
+		this.shipselect_left = new Button(this, {
             name: "",
             x: 60,
             y: 300,
             scalex: 1,
             scaley: 1,
             spriteid: 'symbols',
+            clickCallback: function() {
+            	console.log("yo yo left");
+            },
             frameid: {
             	up: "arrowLeft",
             	down: "arrowLeft",
@@ -50,7 +55,7 @@ var managerui = new Phaser.Class({
             }
         })
 
-       	var shipselect_left = new Button(this, {
+       	this.shipselect_left = new Button(this, {
             name: "",
             x: 435,
             y: 300,
