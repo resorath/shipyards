@@ -210,6 +210,8 @@
 
                         // create the weapons
                         bayinfo.selected.weapons.forEach( function(item) {
+                            if(item == null)
+                                return;
                             weapons.push(new item.weapon(this, item.options));
                         }, this);
 
@@ -348,7 +350,7 @@
         "Classic Laser":
         {
             weapon: weapons.Laser,
-            options: { range: 400, cooldown: 15, lifetime: 1000 },
+            options: { range: 300, cooldown: 10, lifetime: 1000 },
             energy: 1,
             icon: 'icon-laser',
             fits: [ craft.Fighter, craft.Corvette ]
@@ -357,7 +359,7 @@
         "MX-01 Missile":
         {
             weapon: weapons.Missile,
-            options: { range: 400, cooldown: 15, lifetime: 1000 },
+            options: { range: 1000, cooldown: 300, lifetime: 5000 },
             energy: 1,
             icon: 'icon-missile',
             fits: [ craft.Corvette ]

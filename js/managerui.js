@@ -208,6 +208,29 @@ managerui.create = function()
 
 
 	// buttons
+
+	this.commitbutton = new Button(this, {
+		name: "Commit",
+		x: 1000, 
+		y: 45, 
+		clickCallback: function() {
+
+			// load bayBuildConfig into bays:
+			for(bayid in bays[managerui.currentTeam])
+			{
+				bays[managerui.currentTeam][bayid].available = [ null ];
+
+				bayBuildConfig[managerui.currentTeam].forEach(function(config) {
+					bays[managerui.currentTeam][bayid].available.push(config);
+				})
+				
+			}		
+
+			managerui.scene.sleep();
+			battle.scene.start();
+		}
+	})
+
 	this.shipselect_left = new Button(this, {
         name: "",
         x: 60,

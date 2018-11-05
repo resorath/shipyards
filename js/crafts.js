@@ -43,6 +43,8 @@ craft.Ship = class
 
         var that = this;
         this.weapons.forEach(function(weapon){
+            if(weapon == null)
+                return;
             weapon.origin = that.sprite
         })
         
