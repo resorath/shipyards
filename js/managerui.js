@@ -24,6 +24,18 @@ managerui.removeBar = function(barContainer)
 
 },
 
+managerui.removeBarAll = function(barContainer)
+{
+	var bar;
+	var l = barContainer.length;
+	for(var i = 0; i < l; i++)
+	{
+		bar = barContainer.pop();
+		bar.destroy();
+	}
+
+}
+
 managerui.preload = function()
 {
 },
@@ -31,6 +43,13 @@ managerui.preload = function()
 managerui.loadship = function(team, index)
 {
 	var config = bayBuildConfig[team][index];
+
+	// remove existing bars
+	this.removeBarAll(this.shieldLevels);
+	this.removeBarAll(this.energyLevels);
+
+	console.log(this.shieldLevels);
+	console.log(this.energyLevels);
 
 
 	this.shipname.text = config.name;

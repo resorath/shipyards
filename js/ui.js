@@ -23,6 +23,9 @@ class Button
 		if(typeof options.clickCallback === 'undefined')
 			options.clickCallback = function() {}
 
+		if(typeof options.hoverCallback === 'undefined')
+			options.hoverCallback = function() {}
+
 		this.x = options.x;
 		this.y = options.y;
 		this.scalex = options.scalex;
@@ -33,6 +36,7 @@ class Button
 
 		this.clickCallback = options.clickCallback;
 		this.leaveCallback = options.leaveCallback;
+		this.hoverCallback = options.hoverCallback;
 
 		this.sceneContext = sceneContext;
 		
@@ -49,6 +53,9 @@ class Button
         		return;
 
             this.setButtonFrame(this.frameid.hover);
+
+            this.hoverCallback(this);
+
         }, this);
         this.sceneContext.input.on('gameobjectout', function (pointer, button)
         {
