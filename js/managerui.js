@@ -11,7 +11,7 @@ managerui.addBar = function(barContainer, x, y, maximum)
 
 	barContainer.push(bar);
 
-},
+}
 
 
 managerui.removeBar = function(barContainer)
@@ -22,7 +22,7 @@ managerui.removeBar = function(barContainer)
 	var bar = barContainer.pop();
 	bar.destroy();
 
-},
+}
 
 managerui.removeBarAll = function(barContainer)
 {
@@ -36,9 +36,17 @@ managerui.removeBarAll = function(barContainer)
 
 }
 
+managerui.changeWeapon = function(team, shipIndex, weaponIndex, weapon)
+{
+	console.log(team, shipIndex, weaponIndex, weapon);
+	bayBuildConfig[team][shipIndex].weapons[weaponIndex] = weapon;
+	console.log(bayBuildConfig);
+	this.loadship(team, shipIndex);
+}
+
 managerui.preload = function()
 {
-},
+}
 
 managerui.loadship = function(team, index)
 {
@@ -47,10 +55,6 @@ managerui.loadship = function(team, index)
 	// remove existing bars
 	this.removeBarAll(this.shieldLevels);
 	this.removeBarAll(this.energyLevels);
-
-	console.log(this.shieldLevels);
-	console.log(this.energyLevels);
-
 
 	this.shipname.text = config.name;
 	this.shipdescription.text = config.description;
@@ -63,6 +67,7 @@ managerui.loadship = function(team, index)
 
 	var x = 620;
 	var y = 170;
+	var weaponIndex = 0;
 	config.weapons.forEach(function(weapon)
 	{
 		// add null option
@@ -77,11 +82,15 @@ managerui.loadship = function(team, index)
 	        	up: "cross",
 	        	down: "cross",
 	        	hover: "cross",
+	        },
+	        clickCallback: function() {
+	        	managerui.changeWeapon(team, index, this.weaponIndex, null)
 	        }
 		})
+		b.weaponIndex = weaponIndex;
 
 		if(weapon == null)
-			b.sprite.setTint(0x00ff00);
+			b.sprite.setTint(0xff0000);
 
 		x += 50;
 
@@ -114,13 +123,18 @@ managerui.loadship = function(team, index)
 			{
 			// show weapon as option
 				b = new Button(this, {
-						name: "",
-						x,
-						y,
-						scalex: 0.08,
-						scaley: 0.08,
-						spriteid: aw.icon
-					})
+					name: "",
+					x,
+					y,
+					scalex: 0.08,
+					scaley: 0.08,
+					spriteid: aw.icon,
+					clickCallback: function() {
+	        			managerui.changeWeapon(team, index, this.weaponIndex, this.weapon)
+	        		}		
+				})
+				b.weaponIndex = weaponIndex;
+				b.weapon = aw;
 			}
 
 			x += 50;
@@ -129,6 +143,7 @@ managerui.loadship = function(team, index)
 
 		x = 620;
 		y += 50;
+		weaponIndex++;
 
 	}, this);
 
@@ -165,7 +180,7 @@ managerui.create = function()
 	this.shieldLevels = []
 	this.energyLevels = []
 
-
+	this.currentShipIndex = 0;
 
 
 	// buttons
@@ -267,6 +282,9 @@ managerui.create = function()
         	hover: "plus",
         }
     })
+
+
+    this.loadship("red", this.currentShipIndex);
 },
 
 
