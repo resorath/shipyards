@@ -59,6 +59,14 @@ managerui.loadship = function(team, index)
 	this.shipname.text = config.name;
 	this.shipdescription.text = config.description;
 
+	if(this.sprite != null)
+		this.sprite.destroy();
+
+
+	this.sprite = this.physics.add.sprite(250, 300, config.sprite);
+
+	this.sprite.setScale(config.scalesprite);
+
 	for(var i = 0; i < config.shields; i++)
 		this.addBar(this.shieldLevels, 660, 450, 8);
 
@@ -68,6 +76,14 @@ managerui.loadship = function(team, index)
 	var x = 620;
 	var y = 170;
 	var weaponIndex = 0;
+
+	// delete old sprites
+	this.weaponSprites.forEach(function(b) {
+		console.log("Cleanup " + b);
+		b.destroy();
+	});
+	this.weaponSprites = [];
+
 	config.weapons.forEach(function(weapon)
 	{
 		// add null option
@@ -92,6 +108,8 @@ managerui.loadship = function(team, index)
 		if(weapon == null)
 			b.sprite.setTint(0xff0000);
 
+		this.weaponSprites.push(b);
+
 		x += 50;
 
 
@@ -113,6 +131,8 @@ managerui.loadship = function(team, index)
 				})
 
 				b.sprite.setTint(0x00ff00);
+
+				this.weaponSprites.push(b);
 			}
 
 			// check if weapon is eligible
@@ -135,6 +155,8 @@ managerui.loadship = function(team, index)
 				})
 				b.weaponIndex = weaponIndex;
 				b.weapon = aw;
+
+				this.weaponSprites.push(b);
 			}
 
 			x += 50;
@@ -175,12 +197,14 @@ managerui.create = function()
 
 	this.round = 0;
 
-	this.physics.add.sprite(250, 300, 'fighter');
+	this.sprite = null;
 
-	this.shieldLevels = []
-	this.energyLevels = []
+	this.shieldLevels = [];
+	this.energyLevels = [];
+	this.weaponSprites = [];
 
 	this.currentShipIndex = 0;
+	this.currentTeam = "red"
 
 
 	// buttons
@@ -192,7 +216,11 @@ managerui.create = function()
         scaley: 1,
         spriteid: 'symbols',
         clickCallback: function() {
-        	console.log("yo yo left");
+        	if(managerui.currentShipIndex > 0)
+        	{
+        		managerui.currentShipIndex--;
+        		managerui.loadship(managerui.currentTeam, managerui.currentShipIndex);
+        	}
         },
         frameid: {
         	up: "arrowLeft",
@@ -201,13 +229,22 @@ managerui.create = function()
         }
     })
 
-   	this.shipselect_left = new Button(this, {
+   	this.shipselect_right = new Button(this, {
         name: "",
         x: 435,
         y: 300,
         scalex: 1,
         scaley: 1,
         spriteid: 'symbols',
+        clickCallback: function() {
+
+        	if(bayBuildConfig[managerui.currentTeam].length - 1 > managerui.currentShipIndex)
+        	{
+        		managerui.currentShipIndex++;
+        		managerui.loadship(managerui.currentTeam, managerui.currentShipIndex);
+
+        	}
+        },
         frameid: {
         	up: "arrowRight",
         	down: "arrowRight",
@@ -224,6 +261,9 @@ managerui.create = function()
         spriteid: 'symbols',
         clickCallback: function() {
         	managerui.removeBar(managerui.shieldLevels);
+
+        	if(managerui.shieldLevels.length > 0)
+				bayBuildConfig[managerui.currentTeam][managerui.currentShipIndex].shields--;
         },
         frameid: {
         	up: "minus",
@@ -241,6 +281,8 @@ managerui.create = function()
         spriteid: 'symbols',
         clickCallback: function() {
         	managerui.addBar(managerui.shieldLevels, 660, 450, 8);
+        	if(managerui.shieldLevels.length < 8)
+				bayBuildConfig[managerui.currentTeam][managerui.currentShipIndex].shields++;
         },
         frameid: {
         	up: "plus",
@@ -258,6 +300,9 @@ managerui.create = function()
         spriteid: 'symbols',
         clickCallback: function() {
         	managerui.removeBar(managerui.energyLevels);
+
+        	if(managerui.energyLevels.length > 0)
+				bayBuildConfig[managerui.currentTeam][managerui.currentShipIndex].energy--;
         },
         frameid: {
         	up: "minus",
@@ -275,6 +320,9 @@ managerui.create = function()
         spriteid: 'symbols',
         clickCallback: function() {
         	managerui.addBar(managerui.energyLevels, 660, 550, 8);
+
+        	if(managerui.energyLevels.length < 8)
+				bayBuildConfig[managerui.currentTeam][managerui.currentShipIndex].energy++;
         },
         frameid: {
         	up: "plus",
@@ -284,7 +332,7 @@ managerui.create = function()
     })
 
 
-    this.loadship("red", this.currentShipIndex);
+    this.loadship(this.currentTeam, this.currentShipIndex);
 },
 
 

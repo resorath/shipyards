@@ -383,6 +383,7 @@
             {
                 craft: craft.Fighter,
                 sprite: 'fighter',
+                scalesprite: 1,
                 name: "Fighter",
                 weapons: [
                     weaponConfig["Classic Laser"],
@@ -391,7 +392,23 @@
                 shields: 1,
                 energy: 1,
                 description: "Lorem ipsum"
-            }
+            },
+            {
+                craft: craft.Corvette,
+                sprite: 'corvette',
+                scalesprite: 0.4,
+                name: 'Corvette',
+                weapons: [
+                    weaponConfig["MX-01 Missile"],
+                    weaponConfig["Classic Laser"],
+                    weaponConfig["Classic Laser"],
+                    weaponConfig["Classic Laser"],
+                ],
+                shields: 1,
+                energy: 4,
+                description: "Frigadigdig"
+            },
+
         ]
     }
 
