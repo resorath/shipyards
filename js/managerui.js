@@ -54,17 +54,19 @@ managerui.loadship = function(team, index)
 	this.removeBarAll(this.shieldLevels);
 	this.removeBarAll(this.energyLevels);
 
+	// show name and description
 	this.shipname.text = config.name;
 	this.shipdescription.text = config.description;
 
+	// show sprite
 	if(this.sprite != null)
 		this.sprite.destroy();
-
 
 	this.sprite = this.physics.add.sprite(250, 300, config.sprite);
 
 	this.sprite.setScale(config.scalesprite);
 
+	// set shield and energy levels.
 	for(var i = 0; i < config.shields; i++)
 		this.addBar(this.shieldLevels, 760, 480, 10);
 
@@ -351,21 +353,20 @@ managerui.commit = function() {
 
 		bayBuildConfig[managerui.currentTeam].forEach(function(config) {
 
-			// bind weapons to hardpoints
-			for(var i = 0; i < config.weapons.length; i++)
-			{
-				if(config.weapons[i] != null)
-				{
-					// clone it, so its a unique copy of the weapon template
-					config.weapons[i] = clone(config.weapons[i]);
+			var configclone = clone(config);
 
+			// bind weapons to hardpoints
+			for(var i = 0; i < configclone.weapons.length; i++)
+			{
+				if(configclone.weapons[i] != null)
+				{
 					// assign hardpoints
-					config.weapons[i].options.offset = config.weaponHardpoints[i];
+					configclone.weapons[i].options.offset = configclone.weaponHardpoints[i];
 				}
 			}
 
 			// load config into bay
-			bays[managerui.currentTeam][bayid].available.push(config);
+			bays[managerui.currentTeam][bayid].available.push(configclone);
 		})
 		
 	}		

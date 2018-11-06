@@ -388,8 +388,8 @@
                 scalesprite: 1,
                 name: "Fighter",
                 weaponHardpoints: [
-                    {x: -5, y: 0},
-                    {x: 5, y: 0}
+                    {x: 0, y: 5},
+                    {x: 0, y: -5}
                 ],
                 weapons: [
                     weaponConfig["Classic Laser"],
@@ -490,7 +490,7 @@
         },
         "blue": {
             "bay 1": { 
-                selected: null,/*                   
+                selected:                   
                     {
                         craft: craft.Fighter,
                         weapons: [ 
@@ -499,7 +499,7 @@
                                 options: { range: 400, cooldown: 15, lifetime: 1000 }
                             }
                         ],
-                    },*/
+                    },
                 button: undefined,
                 buildMultiplyer: 1,
                 xRange: { min: 180, max: 280},
@@ -588,7 +588,7 @@
         var parent = bays[playercolour][parentname].button;
         var availablecraft = button.availablecraft;
 
-        if(craft == null)
+        if(availablecraft == null)
             parent.text.setText("Empty");
         else
             parent.text.setText(availablecraft.craft.Name);
