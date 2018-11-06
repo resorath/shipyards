@@ -212,38 +212,7 @@ managerui.create = function()
 		x: 1200, 
 		y: 45, 
 		clickCallback: function() {
-
-			// load bayBuildConfig into bays:
-			for(bayid in bays[managerui.currentTeam])
-			{
-				bays[managerui.currentTeam][bayid].available = [ null ];
-
-				bayBuildConfig[managerui.currentTeam].forEach(function(config) {
-
-					// bind weapons to hardpoints
-					for(var i = 0; i < config.weapons.length; i++)
-					{
-						if(config.weapons[i] != null)
-						{
-							// clone it, so its a unique copy of the weapon template
-							config.weapons[i] = clone(config.weapons[i]);
-
-							// assign hardpoints
-							config.weapons[i].options.offset = config.weaponHardpoints[i];
-						}
-					}
-
-					console.log(config.weapons);
-
-
-					// load config into bay
-					bays[managerui.currentTeam][bayid].available.push(config);
-				})
-				
-			}		
-
-			managerui.scene.sleep();
-			battle.scene.start();
+			managerui.commit();
 		}
 	})
 
@@ -374,6 +343,36 @@ managerui.create = function()
     this.loadship(this.currentTeam, this.currentShipIndex);
 },
 
+managerui.commit = function() {
+	// load bayBuildConfig into bays:
+	for(bayid in bays[managerui.currentTeam])
+	{
+		bays[managerui.currentTeam][bayid].available = [ null ];
+
+		bayBuildConfig[managerui.currentTeam].forEach(function(config) {
+
+			// bind weapons to hardpoints
+			for(var i = 0; i < config.weapons.length; i++)
+			{
+				if(config.weapons[i] != null)
+				{
+					// clone it, so its a unique copy of the weapon template
+					config.weapons[i] = clone(config.weapons[i]);
+
+					// assign hardpoints
+					config.weapons[i].options.offset = config.weaponHardpoints[i];
+				}
+			}
+
+			// load config into bay
+			bays[managerui.currentTeam][bayid].available.push(config);
+		})
+		
+	}		
+
+	managerui.scene.sleep();
+	battle.scene.start();
+}
 
 managerui.update = function()
 {
