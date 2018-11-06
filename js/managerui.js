@@ -68,13 +68,13 @@ managerui.loadship = function(team, index)
 	this.sprite.setScale(config.scalesprite);
 
 	for(var i = 0; i < config.shields; i++)
-		this.addBar(this.shieldLevels, 660, 450, 8);
+		this.addBar(this.shieldLevels, 760, 480, 10);
 
 	for(i = 0; i < config.energy; i++)
-		this.addBar(this.energyLevels, 660, 550, 8);
+		this.addBar(this.energyLevels, 760, 580, 10);
 
-	var x = 620;
-	var y = 170;
+	var x = 670;
+	var y = 190;
 	var weaponIndex = 0;
 
 	// delete old sprites
@@ -163,7 +163,7 @@ managerui.loadship = function(team, index)
 
 		}
 
-		x = 620;
+		x = 670;
 		y += 50;
 		weaponIndex++;
 
@@ -185,10 +185,10 @@ managerui.create = function()
 	boxgraphics.fillRectShape(rect2);
 
 	// static text
-	this.add.bitmapText(400, 30, 'nokia', 'Shipyard Manager', 32).setTintFill(0xffffff);
-	this.add.bitmapText(700, 120, 'nokia', 'Weapons', 24).setTintFill(0xffffff);
-	this.add.bitmapText(700, 400, 'nokia', 'Shields', 24).setTintFill(0xffffff);
-	this.add.bitmapText(700, 500, 'nokia', 'Energy', 24).setTintFill(0xffffff);
+	this.add.bitmapText(500, 30, 'nokia', 'Shipyard Manager', 32).setTintFill(0xffffff);
+	this.add.bitmapText(800, 120, 'nokia', 'Weapons', 24).setTintFill(0xffffff);
+	this.add.bitmapText(800, 430, 'nokia', 'Shields', 24).setTintFill(0xffffff);
+	this.add.bitmapText(800, 530, 'nokia', 'Energy', 24).setTintFill(0xffffff);
 
 	// dynamic text
 	this.shipname = this.add.bitmapText(220, 140, 'nokia', 'Fighter', 22).setTintFill(0xffffff);
@@ -211,7 +211,7 @@ managerui.create = function()
 
 	this.commitbutton = new Button(this, {
 		name: "Commit",
-		x: 1000, 
+		x: 1200, 
 		y: 45, 
 		clickCallback: function() {
 
@@ -277,8 +277,8 @@ managerui.create = function()
 
     this.shields_decrease = new Button(this, {
         name: "",
-        x: 600,
-        y: 450,
+        x: 700,
+        y: 480,
         scalex: 1,
         scaley: 1,
         spriteid: 'symbols',
@@ -297,14 +297,14 @@ managerui.create = function()
 
     this.shields_increase = new Button(this, {
         name: "",
-        x: 980,
-        y: 450,
+        x: 1150,
+        y: 480,
         scalex: 1,
         scaley: 1,
         spriteid: 'symbols',
         clickCallback: function() {
-        	managerui.addBar(managerui.shieldLevels, 660, 450, 8);
-        	if(managerui.shieldLevels.length < 8)
+        	managerui.addBar(managerui.shieldLevels, 760, 480, 10);
+        	if(managerui.shieldLevels.length < 10)
 				bayBuildConfig[managerui.currentTeam][managerui.currentShipIndex].shields++;
         },
         frameid: {
@@ -316,8 +316,8 @@ managerui.create = function()
 
     this.energy_decrease = new Button(this, {
         name: "",
-        x: 600,
-        y: 550,
+        x: 700,
+        y: 580,
         scalex: 1,
         scaley: 1,
         spriteid: 'symbols',
@@ -336,15 +336,15 @@ managerui.create = function()
 
     this.energy_increase = new Button(this, {
         name: "",
-        x: 980,
-        y: 550,
+        x: 1150,
+        y: 580,
         scalex: 1,
         scaley: 1,
         spriteid: 'symbols',
         clickCallback: function() {
-        	managerui.addBar(managerui.energyLevels, 660, 550, 8);
+        	managerui.addBar(managerui.energyLevels, 760, 580, 10);
 
-        	if(managerui.energyLevels.length < 8)
+        	if(managerui.energyLevels.length < 10)
 				bayBuildConfig[managerui.currentTeam][managerui.currentShipIndex].energy++;
         },
         frameid: {
