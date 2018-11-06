@@ -18,9 +18,11 @@ weapons.Laser = class
             cooldown: 10,
             lifetime: 1000,
             velocity: 600, 
-            damage: 5, 
-            offset: {x: 0, y: 0}
+            damage: 5
         });
+
+        if(typeof options.offset === 'undefined')
+            options.offset = { x: 0, y: 0 }
 
         this.range = options.range;
         this.cooldown = options.cooldown;
@@ -38,7 +40,6 @@ weapons.Laser = class
         }
 
         this.isFiring = false;
-
         emitter.on('update', this.update, this);
 
     }
@@ -161,9 +162,13 @@ weapons.Missile = class
             cooldown: 300,
             lifetime: 5000,
             velocity: 250, 
-            damage: 100, 
-            offset: {x: 0, y: -30}
+            damage: 100
         });
+
+
+    
+        if(typeof options.offset === 'undefined')
+            options.offset = { x: 0, y: 0 }
 
         this.range = options.range;
         this.cooldown = options.cooldown;
@@ -172,6 +177,7 @@ weapons.Missile = class
         this.damage = options.damage;
         this.offset = options.offset;
         this.nextFireShot = sceneContext.round;
+
 
         this.missiles = sceneContext.physics.add.group();
 
@@ -317,9 +323,11 @@ weapons.Beam = class
             cooldown: 400,
             lifetime: 2000,
             velocity: 250, 
-            damage: 0.2, 
-            offset: {x: 20, y: 20}
+            damage: 0.2
         });
+
+        if(typeof options.offset === 'undefined')
+            options.offset = { x: 0, y: 0 }
 
         this.range = options.range;
         this.cooldown = options.cooldown;
@@ -581,7 +589,6 @@ weapons.Beam = class
             // target was destroyed while evaluating
             if(localtarget != null && !localtarget.active)
             {
-                console.log("target destroyed");
                 beam.destroy();
                 that.destroymuzzleglows();
                 return;

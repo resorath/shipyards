@@ -38,9 +38,7 @@ managerui.removeBarAll = function(barContainer)
 
 managerui.changeWeapon = function(team, shipIndex, weaponIndex, weapon)
 {
-	console.log(team, shipIndex, weaponIndex, weapon);
 	bayBuildConfig[team][shipIndex].weapons[weaponIndex] = weapon;
-	console.log(bayBuildConfig);
 	this.loadship(team, shipIndex);
 }
 
@@ -79,13 +77,13 @@ managerui.loadship = function(team, index)
 
 	// delete old sprites
 	this.weaponSprites.forEach(function(b) {
-		console.log("Cleanup " + b);
 		b.destroy();
 	});
 	this.weaponSprites = [];
 
 	config.weapons.forEach(function(weapon)
 	{
+
 		// add null option
 		b = new Button(this, {
 			name: "",
@@ -141,7 +139,7 @@ managerui.loadship = function(team, index)
 
 			else
 			{
-			// show weapon as option
+				// show weapon as option
 				b = new Button(this, {
 					name: "",
 					x,
@@ -221,6 +219,24 @@ managerui.create = function()
 				bays[managerui.currentTeam][bayid].available = [ null ];
 
 				bayBuildConfig[managerui.currentTeam].forEach(function(config) {
+
+					// bind weapons to hardpoints
+					for(var i = 0; i < config.weapons.length; i++)
+					{
+						if(config.weapons[i] != null)
+						{
+							// clone it, so its a unique copy of the weapon template
+							config.weapons[i] = clone(config.weapons[i]);
+
+							// assign hardpoints
+							config.weapons[i].options.offset = config.weaponHardpoints[i];
+						}
+					}
+
+					console.log(config.weapons);
+
+
+					// load config into bay
 					bays[managerui.currentTeam][bayid].available.push(config);
 				})
 				
