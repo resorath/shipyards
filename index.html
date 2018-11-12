@@ -116,6 +116,7 @@
 
         this.load.image('icon-laser', 'assets/icons/tesla-turret.png');
         this.load.image('icon-missile', 'assets/icons/cannon-shot.png');
+        this.load.image('icon-beam', 'assets/icons/sinusoidal-beam.png');
     }
 
     preloader.create = function()
@@ -130,6 +131,7 @@
 
     particles.fireballGenerator = function(originX, originY, directionX, directionY, size = 1)
     {
+
         var fireball = battle.add.follower(null, 50, 350, 'muzzleflash');
 
         var fireFX = battle.tweens.add({
@@ -143,9 +145,10 @@
             paused: true
         });
 
-        fireFX.setCallback('onUpdate', function() {
+        // This is causing problems with certain Chrome versions
+        /*fireFX.setCallback('onUpdate', function() {
             particles.rt.draw(fireball);
-        }, [], this);
+        }, [], this);*/
 
         fireball.setPosition(originX, originY).setScale(0.1).setAlpha(1);
 
@@ -154,7 +157,7 @@
         fireball.setPath(curve);
         fireball.startFollow(1500);
         
-        fireFX.restart();   
+        fireFX.restart();  
     }
 
 
@@ -362,6 +365,15 @@
             options: { range: 1000, cooldown: 300, lifetime: 5000 },
             energy: 1,
             icon: 'icon-missile',
+            fits: [ craft.Corvette ]
+        },
+
+        "Purple Beam":
+        {
+            weapon: weapons.Beam,
+            options: { range: 500, cooldown: 400, lifetime: 2000 },
+            energy: 3,
+            icon: 'icon-beam',
             fits: [ craft.Corvette ]
         }
 
