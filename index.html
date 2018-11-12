@@ -22,6 +22,7 @@
 
     </style>
 
+    <script src="local/en.js"></script>
     <script src="js/weapons.js"></script>
     <script src="js/crafts.js"></script>
     <script src="js/ui.js"></script>
@@ -223,7 +224,7 @@
                 craft: craft.Fighter,
                 sprite: 'fighter',
                 scalesprite: 1,
-                name: "Fighter",
+                name: 'Standard Fighter',
                 weaponHardpoints: [
                     {x: 10, y: 5},
                     {x: 10, y: 20}
@@ -234,13 +235,13 @@
                 ],
                 shields: 1,
                 energy: 1,
-                description: "Lorem ipsum"
+                get description() { return wordWrap(locale.ships[this.name], 60) }
             },
             {
                 craft: craft.Corvette,
                 sprite: 'corvette',
                 scalesprite: 0.4,
-                name: 'Corvette',
+                name: 'Longsword Corvette',
                 weaponHardpoints: [
                     {x: 105, y: 5},
                     {x: 30, y: 5},
@@ -257,7 +258,7 @@
                 ],
                 shields: 1,
                 energy: 4,
-                description: "Frigadigdig"
+                get description() { return wordWrap(locale.ships[this.name], 60) }
             },
 
         ]
@@ -328,33 +329,26 @@
         "blue": {
             "bay 1": { 
                 selected:                   
-                    {
-                        craft: craft.Fighter,
-                        weapons: [ 
-                            { 
-                                weapon: weapons.Laser, 
-                                options: { range: 400, cooldown: 15, lifetime: 1000 }
-                            }
-                        ],
-                    },
+                {
+                    craft: craft.Fighter,
+                    weapons: [ 
+                        { 
+                            weapon: weapons.Laser, 
+                            options: { range: 400, cooldown: 15, lifetime: 1000 }
+                        }
+                    ],
+                },
                 button: undefined,
                 buildMultiplyer: 1,
                 xRange: { min: 180, max: 280},
-                available: [
-                    null,
-                    craft.Fighter,
-                    craft.Corvette    
-                ] 
+                available: [] 
             },
             "bay 2": { 
                 selected: null, 
                 button: undefined,
                 buildMultiplyer: 1.5,
                 xRange: { min: 280, max: 380},
-                available: [
-                    null,
-                    craft.Fighter    
-                ] 
+                available: [] 
             },
         }
     }
@@ -379,6 +373,38 @@
         }
         return temp;
     }
+
+    var wordWrap = function(long_string, max_char){
+
+      var sum_length_of_words = function(word_array){
+        var out = 0;
+        if (word_array.length!=0){
+          for (var i=0; i<word_array.length; i++){
+            var word = word_array[i];
+            out = out + word.length;
+          }
+        };
+        return out;
+      }
+
+      var split_out = [[]];
+      var split_string = long_string.split(' ');
+      for (var i=0; i<split_string.length; i++){
+        var word = split_string[i];
+        
+        if ((sum_length_of_words(split_out[split_out.length-1]) + word.length) > max_char){
+          split_out = split_out.concat([[]]);
+        }
+        
+        split_out[split_out.length-1] = split_out[split_out.length-1].concat(word);
+      }
+      
+      for (var i=0; i<split_out.length; i++){
+        split_out[i] = split_out[i].join(" ");
+      }
+      
+      return split_out.join('\n');
+    };
 
 
     function setDefaults(options, defaults){
