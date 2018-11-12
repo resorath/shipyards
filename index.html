@@ -38,9 +38,6 @@
     var battle = new Phaser.Scene('Battle');
     var battleui = new Phaser.Scene('BattleUI');
 
-    
-
-
     var emitter = new Phaser.Events.EventEmitter();
     var rand = new Phaser.Math.RandomDataGenerator();
 
@@ -91,6 +88,25 @@
 
         }
     }
+
+
+
+    var teammodifiers = {
+        red: {
+            direction: 0,
+            X: 1350,
+            velocityMod: -1,
+            weaponInversionFlag: false
+        },
+
+        blue: {
+            direction: Math.PI,
+            X: 50,
+            velocityMod: 1,
+            weaponInversionFlag: true
+        }
+    }
+
 
     preloader.preload = function()
     {
@@ -215,10 +231,11 @@
                         bayinfo.selected.weapons.forEach( function(item) {
                             if(item == null)
                                 return;
+
                             weapons.push(new item.weapon(this, item.options));
                         }, this);
 
-                        new bayinfo.selected.craft(
+                        var ship = new bayinfo.selected.craft(
                             this, 
                             player, 
                             Phaser.Math.Between(bayinfo.xRange.min, bayinfo.xRange.max),
@@ -226,6 +243,23 @@
                                 weapons
                             }
                         );
+
+                        // invert weapon position if needed
+                        if(teammodifiers[player].weaponInversionFlag)
+                        {
+                            if(ship.weapons != null)
+                            {
+                                var shipwidth = ship.sprite.body.width;
+
+
+                                ship.weapons.forEach(function(weapon){
+                                    weapon.offset.x = shipwidth - weapon.offset.x;
+                                })
+                            }
+                        }
+
+
+
                     }
                 }
 
@@ -400,8 +434,8 @@
                 scalesprite: 1,
                 name: "Fighter",
                 weaponHardpoints: [
-                    {x: 0, y: 5},
-                    {x: 0, y: -5}
+                    {x: 10, y: 5},
+                    {x: 10, y: 20}
                 ],
                 weapons: [
                     weaponConfig["Classic Laser"],
@@ -417,11 +451,11 @@
                 scalesprite: 0.4,
                 name: 'Corvette',
                 weaponHardpoints: [
-                    {x: 5, y: 0},
-                    {x: -40, y: 0},
-                    {x: -10, y: 0},
-                    {x: 20, y: 0},
-                    {x: -70, y: 0}
+                    {x: 105, y: 5},
+                    {x: 30, y: 5},
+                    {x: 60, y: 5},
+                    {x: 90, y: 5},
+                    {x: 0, y: 10}
                 ],
                 weapons: [
                     weaponConfig["MX-01 Missile"],

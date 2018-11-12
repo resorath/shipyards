@@ -70,7 +70,7 @@ weapons.Laser = class
     	if(this.target == null || typeof this.target.body === 'undefined')
     		return;
 
-        var laser = this.lasers.create(this.origin.x + this.offset.x, this.origin.y + this.offset.y, 'laser');
+        var laser = this.lasers.create(this.origin.body.x + this.offset.x, this.origin.body.y + this.offset.y, 'laser');
 
         var angle = Phaser.Math.Angle.Between(
             this.origin.x, 
@@ -213,7 +213,7 @@ weapons.Missile = class
 
     fire()
     {
-        var missile = this.missiles.create(this.origin.x + this.offset.x, this.origin.y + this.offset.y, 'missile');
+        var missile = this.missiles.create(this.origin.body.x + this.offset.x, this.origin.body.y + this.offset.y, 'missile');
         missile.setDataEnabled();
 
         // snapshot the current target

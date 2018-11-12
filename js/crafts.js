@@ -86,21 +86,6 @@ craft.Ship = class
 }
 
 
-var teammodifiers = {
-    red: {
-        direction: 0,
-        X: 1350,
-        velocityMod: -1
-    },
-
-    blue: {
-        direction: Math.PI,
-        X: 50,
-        velocityMod: 1
-    }
-}
-
-
 
 craft.Shipyard = class extends craft.Ship
 {
