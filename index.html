@@ -26,6 +26,8 @@
     <script src="js/crafts.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/managerui.js"></script>
+    <script src="js/battle.js"></script>
+    <script src="js/battleui.js"></script>
 </head>
 <body>
 
@@ -34,9 +36,6 @@
     'use strict';
 
     var preloader = new Phaser.Scene('preloader');
-
-    var battle = new Phaser.Scene('Battle');
-    var battleui = new Phaser.Scene('BattleUI');
 
     var emitter = new Phaser.Events.EventEmitter();
     var rand = new Phaser.Math.RandomDataGenerator();
@@ -93,10 +92,10 @@
 
     var teammodifiers = {
         blue: {
-            direction: 0,
-            X: 1350,
-            velocityMod: -1,
-            weaponInversionFlag: false
+            direction: 0,   // Rotation to apply to ships
+            X: 1350,        // Starting X position of ships
+            velocityMod: -1,    // Velocity modifier to apply to ships
+            weaponInversionFlag: false  // If set, weapon X mount points are flipped
         },
 
         red: {
@@ -140,10 +139,6 @@
         this.scene.start('ManagerUI');
     }
 
-    battle.preload = function()
-    {
-        battleui.scene.start();
-    }
 
     particles.fireballGenerator = function(originX, originY, directionX, directionY, size = 1)
     {
@@ -176,212 +171,6 @@
         fireFX.restart();  
     }
 
-
-    battle.create = function()
-    {
-        ships.red = this.physics.add.group();
-        ships.blue = this.physics.add.group();
-
-        particles.redburst = this.add.particles('redparticle');
-
-
-        particles.rt = this.make.renderTexture({x:0, y:0, width: 50, height: 40}).setOrigin(0,0);
-
-        shipyards.red.shipyard = new craft.Shipyard(this, "red", 250);
-        shipyards.blue.shipyard = new craft.Shipyard(this, "blue", 250);
-
-        //particles.test = this.add.particles('shapes',  new Function('return ' + this.cache.text.get('beamsuck'))());
-
-        /*this.time.addEvent({delay: 1000, callback: function() {
-
-        }, callbackScope: this, repeat: Number.MAX_SAFE_INTEGER})*/
-
-
-    }
-
-    battle.round = 0;
-    battle.update = function()
-    {  
-        battle.round++;
-        emitter.emit('update', battle.round);
-
-        shipyards.red.shipyard.sprite.rotation += 0.001;
-        shipyards.blue.shipyard.sprite.rotation -= 0.001;
-
-        for(var player in bays)
-        {
-            for(var bay in bays[player])
-            {
-                var bayinfo = bays[player][bay];
-                if(bayinfo.selected != null)
-                {
-                    /*
-                    bayinfo.selected.BuildTime = the build time (bigger = slower)
-                    bayinfo.buildMultipler = the build time multiplyer penalty of the bay (bigger = slower)
-                    gamerules.buildTimeFactor = The global relationship between update speed and build times
-                    */
-
-                    var spawntime = bayinfo.buildMultiplyer * bayinfo.selected.craft.BuildTime * gamerules.buildTimeFactor;   
-        
-                    if(battle.round % spawntime == 0)
-                    {
-                        var weapons = [];
-
-                        // create the weapons
-                        bayinfo.selected.weapons.forEach( function(item) {
-                            if(item == null)
-                                return;
-
-                            weapons.push(new item.weapon(this, item.options));
-                        }, this);
-
-                        var ship = new bayinfo.selected.craft(
-                            this, 
-                            player, 
-                            Phaser.Math.Between(bayinfo.xRange.min, bayinfo.xRange.max),
-                            {
-                                weapons
-                            }
-                        );
-
-                        // invert weapon position if needed
-                        if(teammodifiers[player].weaponInversionFlag)
-                        {
-                            if(ship.weapons != null)
-                            {
-                                var shipwidth = ship.sprite.body.width * ship.spriteScale;
-
-
-                                ship.weapons.forEach(function(weapon){
-
-                                    console.log(shipwidth - weapon.offset.x);
-                                    weapon.offset.x = shipwidth - weapon.offset.x;
-                                })
-                            }
-                        }
-
-
-
-                    }
-                }
-
-            }
-        }
-    }
-
-    function setDefaults(options, defaults){
-        // maybe this is bad for IE 11?
-        return Object.assign({}, defaults, options);
-    }
-
-    battle.getTeam = function(target)
-    {
-        var result = null;
-        for(var team in ships) 
-        {
-            if(typeof ships[team] !== 'undefined')
-            {
-                ships[team].children.iterate(function(ship){
-                    if(ship == target)
-                    {
-                        result = team;
-                        return;
-                    }
-
-                })
-            }
-        };
-        return result;
-
-    }
-
-    battle.getHostileTeams = function(target)
-    {
-        var result = [];
-        var friendlyteam = this.getTeam(target);
-
-        for(var team in ships)
-        {
-            if(friendlyteam != team)
-                result.push(team);
-        }
-
-        return result;
-    }
-
-    battle.selectBestTarget = function(origin, range)
-    {
-        var hostileTeams = this.getHostileTeams(origin);
-
-        var closestship_distance = range;
-        var closestship_ship = null;
-
-        hostileTeams.forEach(function(team) {
-            ships[team].children.iterate(function(ship) {
-                
-                // pick best ship in range?
-                // for now just pick closest ship in range
-                var distance = Phaser.Math.Distance.Between(origin.x, origin.y, ship.x, ship.y);
-
-                // check if distance is less than either 1) the range of the weapon or 2) the previous closest ship which must be closer than range
-                if(distance < closestship_distance)
-                {
-                    closestship_distance = distance;
-                    closestship_ship = ship;
-                }
-
-            })
-
-        })
-
-        return closestship_ship;
-    }
-
-
-
-    battle.applyAcceleration = function(sprite, triggerSprite, slowestSpeed, topSpeed, acceleration)
-    {
-        // make sure bodies are still in play
-        if(sprite != null && typeof sprite.body !== 'undefined')
-        {
-            // there is a target in range (not null)
-            if(triggerSprite != null)
-            {
-                // slow down to half speed
-
-                // Sprite is moving right
-                if(sprite.body.velocity.x > 0)
-                {
-                    if(sprite.body.velocity.x > slowestSpeed)
-                        sprite.body.velocity.x -= acceleration;
-                }
-                // sprite is moving left
-                if(sprite.body.velocity.x < 0)
-                {
-                    if(sprite.body.velocity.x < slowestSpeed)
-                        sprite.body.velocity.x += acceleration;
-                }
-            }
-            else
-            {
-                // speed up to full speed
-
-                // Sprite is moving right
-                if(sprite.body.velocity.x > 0)
-                {
-                    if(sprite.body.velocity.x < topSpeed)
-                        sprite.body.velocity.x += acceleration;
-                }
-                // sprite is moving left
-                if(sprite.body.velocity.x < 0)
-                {
-                    if(sprite.body.velocity.x > topSpeed)
-                        sprite.body.velocity.x -= acceleration;
-                }
-            }
-        }
-
-    }
 
 
     var weaponConfig = {
@@ -570,86 +359,7 @@
         }
     }
 
-    battleui.preload = function() 
-    {
-        this.load.spritesheet('button', 'assets/flixel-button.png', { frameWidth: 80, frameHeight: 20 });
-        this.load.bitmapFont('nokia', 'assets/nokia16black.png', 'https://labs.phaser.io/assets/fonts/bitmap/nokia16black.xml');
-    }
 
-    battleui.create = function() {
-
-        var x = 100;
-        for(var bay in bays[playercolour])
-        {
-            //bays[playercolour][bay].button = this.makeButton(bay, x, 650, this.topLevelClick);
-            bays[playercolour][bay].button = new Button(this, {
-                name: bay,
-                x, 
-                y: 650,
-                clickCallback: this.topLevelClick
-            })
-            x += 160;
-        }
-
-    }
-
-    battleui.activeSubMenu = [];
-
-    battleui.topLevelClick = function(button){
-        battle.scene.pause();
-        
-        var x = button.x + 20;
-        var y = 620;
-
-
-        bays[playercolour][button.name].available.forEach(function(availablecraft) {
-            var buttonset;
-            if(availablecraft == null)
-                buttonset = new Button(battleui, {
-                    name: "Empty",
-                    x, 
-                    y, 
-                    clickCallback: battleui.secondLevelClick});
-            else
-                buttonset = new Button(battleui, {
-                    name: availablecraft.craft.Name, 
-                    x, 
-                    y, 
-                    clickCallback: battleui.secondLevelClick});
-
-            buttonset.availablecraft = availablecraft;
-            buttonset.parent = button.name;
-            
-            battleui.activeSubMenu.push(buttonset);
-
-            y -= 30;
-        })
-
-    }
-
-    var last;
-    battleui.secondLevelClick = function(button)
-    {
-        battle.scene.resume();
-
-        var parentname = button.parent;
-        var parent = bays[playercolour][parentname].button;
-        var availablecraft = button.availablecraft;
-
-        if(availablecraft == null)
-            parent.text.setText("Empty");
-        else
-            parent.text.setText(availablecraft.craft.Name);
-
-        bays[playercolour][parentname].selected = availablecraft;
-
-        battleui.activeSubMenu.forEach(function(subelement) {
-            subelement.destroy();  
-        })
-
-        battleui.activeSubMenu = [];
-
-    }
 
     function clone(obj) {
         if (obj === null || typeof (obj) !== 'object' || 'isActiveClone' in obj)
@@ -668,6 +378,12 @@
             }
         }
         return temp;
+    }
+
+
+    function setDefaults(options, defaults){
+        // maybe this is bad for IE 11?
+        return Object.assign({}, defaults, options);
     }
 
     function resize() {
