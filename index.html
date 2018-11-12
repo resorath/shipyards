@@ -249,10 +249,12 @@
                         {
                             if(ship.weapons != null)
                             {
-                                var shipwidth = ship.sprite.body.width;
+                                var shipwidth = ship.sprite.body.width * ship.spriteScale;
 
 
                                 ship.weapons.forEach(function(weapon){
+
+                                    console.log(shipwidth - weapon.offset.x);
                                     weapon.offset.x = shipwidth - weapon.offset.x;
                                 })
                             }

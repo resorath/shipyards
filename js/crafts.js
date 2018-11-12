@@ -28,6 +28,7 @@ craft.Ship = class
         options.velocity = options.velocity * teammodifiers[this.team].velocityMod;
 
         this.baseVelocity = options.velocity;
+        this.spriteScale = options.scale;
 
         // sprite options
         this.sprite.setScale(options.scale);
