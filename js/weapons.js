@@ -313,6 +313,7 @@ weapons.Beam = class
 {
     constructor(sceneContext, options)
     {
+
         this.origin = null; // needs to be set when weapon is mounted
         this.target = null;
         this.sceneContext = sceneContext;

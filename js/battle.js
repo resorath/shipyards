@@ -32,11 +32,11 @@ battle.update = function()
     shipyards.red.shipyard.sprite.rotation += 0.001;
     shipyards.blue.shipyard.sprite.rotation -= 0.001;
 
-    for(var player in bays)
+    for(var team in bays)
     {
-        for(var bay in bays[player])
+        for(var bay in bays[team])
         {
-            var bayinfo = bays[player][bay];
+            var bayinfo = bays[team][bay];
             if(bayinfo.selected != null)
             {
                 /*
@@ -56,13 +56,15 @@ battle.update = function()
                         if(item == null)
                             return;
 
-                        weapons.push(new item.weapon(this, item.options));
+                        var options = clone(item.options);
+
+                        weapons.push(new item.weapon(this, options));
                     }, this);
 
                     // spawn the ship
                     var ship = new bayinfo.selected.craft(
                         this, 
-                        player, 
+                        team, 
                         Phaser.Math.Between(bayinfo.xRange.min, bayinfo.xRange.max),
                         {
                             weapons
@@ -70,12 +72,11 @@ battle.update = function()
                     );
 
                     // invert weapon position if needed
-                    if(teammodifiers[player].weaponInversionFlag)
+                    if(teammodifiers[team].weaponInversionFlag)
                     {
                         if(ship.weapons != null)
                         {
                             var shipwidth = ship.sprite.body.width * ship.spriteScale;
-
 
                             ship.weapons.forEach(function(weapon){
                                 weapon.offset.x = shipwidth - weapon.offset.x;

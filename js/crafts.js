@@ -224,14 +224,19 @@ craft.Fighter = class extends craft.Ship
     {
         super(sceneContext, team, startY, options);
 
+        if(options.weapons === 'undefined')
+        {
+            options.weapons = [
+                new weapons.Laser(sceneContext, { range: 400, cooldown: 15, lifetime: 1000 })
+            ]
+        }
+
         options = setDefaults(options, {
             scale: 0.3,
             velocity: 50,
             direction: 0,
             name: '',
-            weapons: [ 
-                new weapons.Laser(sceneContext, { range: 400, cooldown: 15, lifetime: 1000 })
-            ],
+            weapons: [],
             X: 1200, 
             health: 30
         })
@@ -300,18 +305,23 @@ craft.Corvette = class extends craft.Ship
 
         this.closestTarget = null;
 
-        options = setDefaults(options, {
-            scale: 0.3,
-            velocity: 40,
-            direction: 0,
-            name: '',
-            weapons: [ 
+        if(options.weapons === 'undefined')
+        {
+            options.weapons = [
                 new weapons.Beam(sceneContext),
                 new weapons.Laser(sceneContext, { range: 300, cooldown: 15, lifetime: 1000, offset: {x: -40, y: 0} }),
                 new weapons.Laser(sceneContext, { range: 300, cooldown: 15, lifetime: 1000, offset: {x: -10, y: 0} }),
                 new weapons.Laser(sceneContext, { range: 300, cooldown: 15, lifetime: 1000, offset: {x: 20, y: 0} }),
                 new weapons.Missile(sceneContext, {})
-            ],
+            ]
+        }
+
+        options = setDefaults(options, {
+            scale: 0.3,
+            velocity: 40,
+            direction: 0,
+            name: '',
+            weapons: [],
             X: 1200, 
             health: 500
         })
