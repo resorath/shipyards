@@ -97,6 +97,11 @@ battle.update = function()
 battle.getTeam = function(target)
 {
     var result = null;
+
+    // if we are getting team of a weapon, select the attached ship instead
+    if(target.type == "weapon")
+        target = target.origin;
+
     for(var team in ships) 
     {
         if(typeof ships[team] !== 'undefined')
@@ -129,6 +134,10 @@ battle.getHostileTeams = function(target)
     return result;
 }
 
+/* Origin can be:
+sprite: for ships
+weapon: for weapons
+*/
 battle.selectBestTarget = function(origin, range)
 {
     var hostileTeams = this.getHostileTeams(origin);

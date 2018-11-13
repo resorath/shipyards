@@ -2,13 +2,30 @@ var weapons = {
 }
 
 
-/** 
-Weapon templates 
-**/
-weapons.Laser = class
+weapons.Weapon = class 
 {
     constructor(sceneContext, options)
     {
+
+    }
+
+    get type() { return "weapon" }
+
+    get x() { return this.origin.x + this.offset.x }
+    get y() { return this.origin.y + this.offset.y }
+
+
+}
+
+/** 
+Weapon templates 
+**/
+weapons.Laser = class extends weapons.Weapon
+{
+    constructor(sceneContext, options)
+    {
+        super(sceneContext, options);
+
         this.origin = null; // needs to be set when weapon is mounted
         this.target = null;
         this.sceneContext = sceneContext;
@@ -43,6 +60,7 @@ weapons.Laser = class
         emitter.on('update', this.update, this);
 
     }
+
 
     destroy()
     {
@@ -121,7 +139,7 @@ weapons.Laser = class
             return;
 
         // returns null if no targets are in range
-        this.target = this.sceneContext.selectBestTarget(this.origin, this.range);
+        this.target = this.sceneContext.selectBestTarget(this, this.range);
 
         if(this.target != null && !this.isFiring)
         {
@@ -148,10 +166,12 @@ weapons.Laser = class
 
 }
 
-weapons.Missile = class
+weapons.Missile = class extends weapons.Weapon
 {
     constructor(sceneContext, options)
     {
+        super(sceneContext, options);
+
         this.origin = null; // needs to be set when weapon is mounted
         this.target = null;
         this.sceneContext = sceneContext;
@@ -262,7 +282,7 @@ weapons.Missile = class
             return;
 
         // returns null if no targets are in range
-        this.target = this.sceneContext.selectBestTarget(this.origin, this.range);
+        this.target = this.sceneContext.selectBestTarget(this, this.range);
 
         if(this.target != null && !this.isFiring)
         {
@@ -309,10 +329,11 @@ weapons.Missile = class
 
 }
 
-weapons.Beam = class
+weapons.Beam = class extends weapons.Weapon
 {
     constructor(sceneContext, options)
     {
+        super(sceneContext, options);
 
         this.origin = null; // needs to be set when weapon is mounted
         this.target = null;
@@ -364,6 +385,8 @@ weapons.Beam = class
         }, callbackScope: this});
 
     }
+
+    
 
     createMuzzleGlow(warmup, runtime, cooldown)
     {
@@ -549,7 +572,7 @@ weapons.Beam = class
         }
 
         // returns null if no targets are in range
-        this.target = this.sceneContext.selectBestTarget(this.origin, this.range);
+        this.target = this.sceneContext.selectBestTarget(this, this.range);
 
         // update beam emitter
         if(typeof this.beamsuck !== 'undefined')

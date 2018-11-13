@@ -13,6 +13,8 @@ craft.Ship = class
 
     }
 
+    get type() { return "ship" }
+
     static get Name() { return "Generic Ship" }
     static get BuildTime() { return 10 }
 
