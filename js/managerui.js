@@ -1,5 +1,14 @@
 var managerui = new Phaser.Scene('ManagerUI');
 
+managerui.constants = {
+
+	shieldbar: { x: 760, y: 480 },
+	energybar: { x: 760, y: 580 },
+	maxshields: 10,
+	maxenergy: 10,
+
+}
+
 managerui.addBar = function(barContainer, x, y, maximum)
 {
 	if(barContainer.length > maximum - 1)
@@ -7,7 +16,7 @@ managerui.addBar = function(barContainer, x, y, maximum)
 
 	var newx = x + 36 * barContainer.length + 5;
 
-	var bar = this.add.image(newx, y, 'symbols', 'barsVertical');
+	var bar = this.add.image(newx, y, 'symbols', 'stop');
 
 	barContainer.push(bar);
 
@@ -68,10 +77,18 @@ managerui.loadship = function(team, index)
 
 	// set shield and energy levels.
 	for(var i = 0; i < config.shields; i++)
-		this.addBar(this.shieldLevels, 760, 480, 10);
+		this.addBar(
+			this.shieldLevels, 
+			this.constants.shieldbar.x, 
+			this.constants.shieldbar.y, 
+			this.constants.maxshields);
 
 	for(i = 0; i < config.energy; i++)
-		this.addBar(this.energyLevels, 760, 580, 10);
+				this.addBar(
+			this.energyLevels, 
+			this.constants.energybar.x, 
+			this.constants.energybar.y, 
+			this.constants.maxenergy);
 
 	var x = 670;
 	var y = 190;
@@ -264,8 +281,8 @@ managerui.create = function()
 
     this.shields_decrease = new Button(this, {
         name: "",
-        x: 700,
-        y: 480,
+        x: managerui.constants.shieldbar.x - 60,
+        y: managerui.constants.shieldbar.y,
         scalex: 1,
         scaley: 1,
         spriteid: 'symbols',
@@ -284,14 +301,14 @@ managerui.create = function()
 
     this.shields_increase = new Button(this, {
         name: "",
-        x: 1150,
-        y: 480,
+        x: managerui.constants.shieldbar.x + 390,
+        y: managerui.constants.shieldbar.y,
         scalex: 1,
         scaley: 1,
         spriteid: 'symbols',
         clickCallback: function() {
-        	managerui.addBar(managerui.shieldLevels, 760, 480, 10);
-        	if(managerui.shieldLevels.length < 10)
+        	managerui.addBar(managerui.shieldLevels, managerui.constants.shieldbar.x, managerui.constants.shieldbar.y, managerui.constants.maxshields);
+        	if(managerui.shieldLevels.length < managerui.constants.maxshields)
 				bayBuildConfig[managerui.currentTeam][managerui.currentShipIndex].shields++;
         },
         frameid: {
@@ -303,8 +320,8 @@ managerui.create = function()
 
     this.energy_decrease = new Button(this, {
         name: "",
-        x: 700,
-        y: 580,
+        x: managerui.constants.energybar.x - 60,
+        y: managerui.constants.energybar.y,
         scalex: 1,
         scaley: 1,
         spriteid: 'symbols',
@@ -323,15 +340,15 @@ managerui.create = function()
 
     this.energy_increase = new Button(this, {
         name: "",
-        x: 1150,
-        y: 580,
+        x: managerui.constants.energybar.x + 390,
+        y: managerui.constants.energybar.y,
         scalex: 1,
         scaley: 1,
         spriteid: 'symbols',
         clickCallback: function() {
-        	managerui.addBar(managerui.energyLevels, 760, 580, 10);
+        	managerui.addBar(managerui.energyLevels, managerui.constants.energybar.x, managerui.constants.energybar.y, managerui.constants.maxenergy);
 
-        	if(managerui.energyLevels.length < 10)
+        	if(managerui.energyLevels.length < managerui.constants.maxenergy)
 				bayBuildConfig[managerui.currentTeam][managerui.currentShipIndex].energy++;
         },
         frameid: {

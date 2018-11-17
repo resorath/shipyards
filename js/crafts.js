@@ -226,7 +226,7 @@ craft.Fighter = class extends craft.Ship
     {
         super(sceneContext, team, startY, options);
 
-        if(options.weapons === 'undefined')
+        if(typeof options.weapons === 'undefined')
         {
             options.weapons = [
                 new weapons.Laser(sceneContext, { range: 400, cooldown: 15, lifetime: 1000 })
@@ -307,7 +307,7 @@ craft.Corvette = class extends craft.Ship
 
         this.closestTarget = null;
 
-        if(options.weapons === 'undefined')
+        if(typeof options.weapons === 'undefined')
         {
             options.weapons = [
                 new weapons.Beam(sceneContext),
