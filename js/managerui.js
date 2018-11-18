@@ -45,6 +45,16 @@ managerui.removeBarAll = function(barContainer)
 
 }
 
+manageui.useEnergy = function()
+{
+
+}
+
+manageui.freeEnergy = function()
+{
+	
+}
+
 managerui.changeWeapon = function(team, shipIndex, weaponIndex, weapon)
 {
 	bayBuildConfig[team][shipIndex].weapons[weaponIndex] = weapon;
