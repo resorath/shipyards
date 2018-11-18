@@ -378,6 +378,10 @@ managerui.create = function()
         scaley: 1,
         spriteid: 'symbols',
         clickCallback: function() {
+
+        	if(managerui.getUsedEnergy(managerui.currentTeam, managerui.currentShipIndex) == bayBuildConfig[managerui.currentTeam][managerui.currentShipIndex].energy)
+        		return;
+
         	managerui.removeBar(managerui.energyLevels);
 
         	if(managerui.energyLevels.length > 0)
