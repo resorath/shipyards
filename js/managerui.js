@@ -86,7 +86,11 @@ managerui.updateEnergyBar = function(team, shipIndex)
 
 managerui.changeWeapon = function(team, shipIndex, weaponIndex, weapon)
 {
-	if(weapon != null && weapon.energy + this.getUsedEnergy(team, shipIndex) > bayBuildConfig[team][shipIndex].energy)
+	var oldweapon = bayBuildConfig[team][shipIndex].weapons[weaponIndex];
+	if(oldweapon == null)
+		oldweapon = { energy: 0 };
+
+	if(weapon != null && weapon.energy - oldweapon.energy + this.getUsedEnergy(team, shipIndex) > bayBuildConfig[team][shipIndex].energy)
 	{
 		this.energyText.setTintFill(0xff0000);
 
