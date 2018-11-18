@@ -406,10 +406,12 @@ managerui.create = function()
         scaley: 1,
         spriteid: 'symbols',
         clickCallback: function() {
-        	managerui.addBar(managerui.energyLevels, managerui.constants.energybar.x, managerui.constants.energybar.y, managerui.constants.maxenergy);
 
         	if(managerui.energyLevels.length < managerui.constants.maxenergy)
+        	{
+        		managerui.addBar(managerui.energyLevels, managerui.constants.energybar.x, managerui.constants.energybar.y, managerui.constants.maxenergy);
 				bayBuildConfig[managerui.currentTeam][managerui.currentShipIndex].energy++;
+			}
         },
         frameid: {
         	up: "plus",
