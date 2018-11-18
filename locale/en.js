@@ -5,7 +5,9 @@ var locale = {
 	},
 
 	"weapons": {
-
+		"Classic Laser": "catdog",
+		"MX-01 Missile": "horse",
+		"Purple Beam": "purple"
 	}
 
 };

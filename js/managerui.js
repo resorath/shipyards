@@ -83,6 +83,19 @@ managerui.updateEnergyBar = function(team, shipIndex)
 	return true;
 }
 
+managerui.showWeaponDescription = function(weapon)
+{
+	this.weaponbox.text.text = weapon.name + "\n\nEnergy cost: " + weapon.energy + "\n\n" + weapon.description;
+
+	this.weaponbox.graphics.setVisible(true);
+	this.weaponbox.text.setVisible(true);
+}
+
+managerui.hideWeaponDescription = function()
+{
+	this.weaponbox.graphics.setVisible(false);
+	this.weaponbox.text.setVisible(false);
+}
 
 managerui.changeWeapon = function(team, shipIndex, weaponIndex, weapon)
 {
@@ -198,7 +211,13 @@ managerui.loadship = function(team, index)
 					y,
 					scalex: 0.08,
 					scaley: 0.08,
-					spriteid: aw.icon
+					spriteid: aw.icon,
+					hoverCallback: function() {
+	        			managerui.showWeaponDescription(weapon);
+	        		},
+	        		leaveCallback: function() {
+	        			managerui.hideWeaponDescription()
+	        		}	
 				})
 
 				b.sprite.setTint(0x00ff00);
@@ -222,7 +241,13 @@ managerui.loadship = function(team, index)
 					spriteid: aw.icon,
 					clickCallback: function() {
 	        			managerui.changeWeapon(team, index, this.weaponIndex, this.weapon)
-	        		}		
+	        		},
+	        		hoverCallback: function() {
+	        			managerui.showWeaponDescription(this.weapon);
+	        		},
+	        		leaveCallback: function() {
+	        			managerui.hideWeaponDescription()
+	        		}	
 				})
 				b.weaponIndex = weaponIndex;
 				b.weapon = aw;
@@ -251,6 +276,7 @@ managerui.create = function()
 	// visuals
 	this.linegraphics = this.add.graphics({ lineStyle: { width: 3, color: 0xffffff, alpha: 0.5 } });
 	var boxgraphics = this.add.graphics({ fillStyle: { color: 0x000000 } });
+
 	this.lines = [];
 	var rect = new Phaser.Geom.Rectangle(400, 190, 600, 220);
 	var rect2 = new Phaser.Geom.Rectangle(0, 190, 100, 220);
@@ -267,6 +293,17 @@ managerui.create = function()
 	this.shipname = this.add.bitmapText(220, 140, 'nokia', 'Fighter', 22).setTintFill(0xffffff);
 	this.shipdescription = this.add.bitmapText(30, 500, 'nokia', 'Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum\nLorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum\nLorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum\nLorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum\n', 16).setTintFill(0xffffff);
 
+	// weaponbox 
+	this.weaponbox = {};
+	this.weaponbox.graphics = this.add.graphics({ lineStyle: { width: 5, color: 0xffffff }, fillStyle: { color: 0x0000ff} });
+	this.weaponbox.graphics.fillRect(10, 100, 600, 550);
+	this.weaponbox.graphics.strokeRect(10, 100, 600, 550);
+	this.weaponbox.graphics.depth = 100;
+	this.weaponbox.graphics.setVisible(false);
+
+	this.weaponbox.text = this.add.bitmapText(20, 110, 'nokia', 'Placeholder', 20).setTintFill(0xffffff);
+	this.weaponbox.text.depth = 101;
+	this.weaponbox.text.setVisible(false);
 
 	this.round = 0;
 
@@ -422,6 +459,9 @@ managerui.create = function()
 
 
     this.loadship(this.currentTeam, this.currentShipIndex);
+
+
+
 },
 
 managerui.commit = function() {

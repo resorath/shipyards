@@ -182,7 +182,9 @@
             options: { range: 300, cooldown: 10, lifetime: 1000 },
             energy: 1,
             icon: 'icon-laser',
-            fits: [ craft.Fighter, craft.Corvette ]
+            fits: [ craft.Fighter, craft.Corvette ],
+            name: "Classic Laser",
+            get description() { return wordWrap(locale.weapons[this.name], 60) }
         },
 
         "MX-01 Missile":
@@ -191,7 +193,9 @@
             options: { range: 1000, cooldown: 300, lifetime: 5000 },
             energy: 1,
             icon: 'icon-missile',
-            fits: [ craft.Corvette ]
+            fits: [ craft.Corvette ],
+            name: "MX-01 Missile",
+            get description() { return wordWrap(locale.weapons[this.name], 60) }
         },
 
         "Purple Beam":
@@ -200,7 +204,9 @@
             options: { range: 500, cooldown: 400, lifetime: 2000 },
             energy: 3,
             icon: 'icon-beam',
-            fits: [ craft.Corvette ]
+            fits: [ craft.Corvette ],
+            name: "Purple Beam",
+            get description() { return wordWrap(locale.weapons[this.name], 60) }
         }
 
 
