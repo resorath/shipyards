@@ -45,18 +45,58 @@ managerui.removeBarAll = function(barContainer)
 
 }
 
-manageui.useEnergy = function()
+managerui.getUsedEnergy = function(team, shipIndex)
 {
+	var weapons = bayBuildConfig[team][shipIndex].weapons;
+	var totalenergy = 0;
+	for(var i = 0; i < weapons.length; i++)
+	{
+		if(weapons[i] == null)
+			continue;
+		totalenergy += weapons[i].energy;
+	}
 
+	return totalenergy;
 }
 
-manageui.freeEnergy = function()
+managerui.updateEnergyBar = function(team, shipIndex)
 {
-	
+	var energybar = managerui.energyLevels.length;
+	var usedenergy = this.getUsedEnergy(team, shipIndex);
+
+	if(usedenergy > energybar)
+	{
+		console.warn("Energy exceeds maximum for ship");
+		return false;
+	}
+
+	for(var i = 0; i < usedenergy; i++)
+	{
+		managerui.energyLevels[i].setTint(0x7ec0ee);
+	}
+
+	for(var i = usedenergy; i < energybar; i++)
+	{
+		managerui.energyLevels[i].setTint(0xffffff);
+	}
+
+	return true;
 }
+
 
 managerui.changeWeapon = function(team, shipIndex, weaponIndex, weapon)
 {
+	if(weapon != null && weapon.energy + this.getUsedEnergy(team, shipIndex) > bayBuildConfig[team][shipIndex].energy)
+	{
+		this.energyText.setTintFill(0xff0000);
+
+		var that = this;
+		that.time.addEvent({ delay: 500, callback: function() {
+            that.energyText.setTintFill(0xffffff);
+        }});
+		return;
+	}
+
 	bayBuildConfig[team][shipIndex].weapons[weaponIndex] = weapon;
 	this.loadship(team, shipIndex);
 }
@@ -196,6 +236,8 @@ managerui.loadship = function(team, index)
 
 	}, this);
 
+	this.updateEnergyBar(team, index);	
+
 
 }
 
@@ -215,7 +257,7 @@ managerui.create = function()
 	this.add.bitmapText(500, 30, 'nokia', 'Shipyard Manager', 32).setTintFill(0xffffff);
 	this.add.bitmapText(800, 120, 'nokia', 'Weapons', 24).setTintFill(0xffffff);
 	this.add.bitmapText(800, 430, 'nokia', 'Shields', 24).setTintFill(0xffffff);
-	this.add.bitmapText(800, 530, 'nokia', 'Energy', 24).setTintFill(0xffffff);
+	this.energyText = this.add.bitmapText(800, 530, 'nokia', 'Energy', 24).setTintFill(0xffffff);
 
 	// dynamic text
 	this.shipname = this.add.bitmapText(220, 140, 'nokia', 'Fighter', 22).setTintFill(0xffffff);
