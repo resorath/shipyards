@@ -380,10 +380,11 @@ managerui.create = function()
         scaley: 1,
         spriteid: 'symbols',
         clickCallback: function() {
-        	managerui.removeBar(managerui.shieldLevels);
-
         	if(managerui.shieldLevels.length > 0)
+        	{
+        		managerui.removeBar(managerui.shieldLevels);
 				bayBuildConfig[managerui.currentTeam][managerui.currentShipIndex].shields--;
+        	}
         },
         frameid: {
         	up: "minus",
@@ -400,9 +401,11 @@ managerui.create = function()
         scaley: 1,
         spriteid: 'symbols',
         clickCallback: function() {
-        	managerui.addBar(managerui.shieldLevels, managerui.constants.shieldbar.x, managerui.constants.shieldbar.y, managerui.constants.maxshields);
         	if(managerui.shieldLevels.length < managerui.constants.maxshields)
+        	{
+        		managerui.addBar(managerui.shieldLevels, managerui.constants.shieldbar.x, managerui.constants.shieldbar.y, managerui.constants.maxshields);
 				bayBuildConfig[managerui.currentTeam][managerui.currentShipIndex].shields++;
+        	}
         },
         frameid: {
         	up: "plus",
@@ -423,10 +426,11 @@ managerui.create = function()
         	if(managerui.getUsedEnergy(managerui.currentTeam, managerui.currentShipIndex) == bayBuildConfig[managerui.currentTeam][managerui.currentShipIndex].energy)
         		return;
 
-        	managerui.removeBar(managerui.energyLevels);
-
         	if(managerui.energyLevels.length > 0)
+        	{
+        		managerui.removeBar(managerui.energyLevels);
 				bayBuildConfig[managerui.currentTeam][managerui.currentShipIndex].energy--;
+        	}
         },
         frameid: {
         	up: "minus",
