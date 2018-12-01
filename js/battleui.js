@@ -4,7 +4,7 @@ battleui.preload = function()
 {
     this.load.spritesheet('button', 'assets/flixel-button.png', { frameWidth: 80, frameHeight: 20 });
     this.load.bitmapFont('nokia', 'assets/nokia16black.png', 'https://labs.phaser.io/assets/fonts/bitmap/nokia16black.xml');
-}
+};
 
 battleui.create = function() {
 
@@ -17,11 +17,11 @@ battleui.create = function() {
             x: x, 
             y: 650,
             clickCallback: this.topLevelClick
-        })
+        });
         x += 160;
     }
 
-}
+};
 
 battleui.activeSubMenu = [];
 
@@ -53,9 +53,9 @@ battleui.topLevelClick = function(button){
         battleui.activeSubMenu.push(buttonset);
 
         y -= 30;
-    })
+    });
 
-}
+};
 
 var last;
 battleui.secondLevelClick = function(button)
@@ -75,7 +75,7 @@ battleui.secondLevelClick = function(button)
 
     battleui.activeSubMenu.forEach(function(subelement) {
         subelement.destroy();  
-    })
+    });
 
     battleui.activeSubMenu = [];
-}
+};
