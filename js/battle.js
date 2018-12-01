@@ -3,7 +3,7 @@ var battle = new Phaser.Scene('Battle');
 battle.preload = function()
 {
     battleui.scene.start();
-}
+};
 
 
 
@@ -21,7 +21,7 @@ battle.create = function()
     shipyards.blue.shipyard = new craft.Shipyard(this, "blue", 250);
 
 
-}
+};
 
 battle.round = 0;
 battle.update = function()
@@ -67,7 +67,7 @@ battle.update = function()
                         team, 
                         Phaser.Math.Between(bayinfo.xRange.min, bayinfo.xRange.max),
                         {
-                            weapons
+                            weapons: weapons
                         }
                     );
 
@@ -80,7 +80,7 @@ battle.update = function()
 
                             ship.weapons.forEach(function(weapon){
                                 weapon.offset.x = shipwidth - weapon.offset.x;
-                            })
+                            });
                         }
                     }
 
@@ -91,7 +91,7 @@ battle.update = function()
 
         }
     }
-}
+};
 
 
 battle.getTeam = function(target)
@@ -113,12 +113,12 @@ battle.getTeam = function(target)
                     return;
                 }
 
-            })
+            });
         }
-    };
+    }
     return result;
 
-}
+};
 
 battle.getHostileTeams = function(target)
 {
@@ -132,7 +132,7 @@ battle.getHostileTeams = function(target)
     }
 
     return result;
-}
+};
 
 /* Origin can be:
 sprite: for ships
@@ -159,12 +159,12 @@ battle.selectBestTarget = function(origin, range)
                 closestship_ship = ship;
             }
 
-        })
+        });
 
-    })
+    });
 
     return closestship_ship;
-}
+};
 
 
 
@@ -210,4 +210,4 @@ battle.applyAcceleration = function(sprite, triggerSprite, slowestSpeed, topSpee
         }
     }
 
-}
+};

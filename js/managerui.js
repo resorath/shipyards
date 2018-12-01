@@ -7,7 +7,7 @@ managerui.constants = {
 	maxshields: 10,
 	maxenergy: 10,
 
-}
+};
 
 managerui.addBar = function(barContainer, x, y, maximum)
 {
@@ -20,7 +20,7 @@ managerui.addBar = function(barContainer, x, y, maximum)
 
 	barContainer.push(bar);
 
-}
+};
 
 
 managerui.removeBar = function(barContainer)
@@ -31,7 +31,7 @@ managerui.removeBar = function(barContainer)
 	var bar = barContainer.pop();
 	bar.destroy();
 
-}
+};
 
 managerui.removeBarAll = function(barContainer)
 {
@@ -43,7 +43,7 @@ managerui.removeBarAll = function(barContainer)
 		bar.destroy();
 	}
 
-}
+};
 
 managerui.getUsedEnergy = function(team, shipIndex)
 {
@@ -57,7 +57,7 @@ managerui.getUsedEnergy = function(team, shipIndex)
 	}
 
 	return totalenergy;
-}
+};
 
 managerui.updateEnergyBar = function(team, shipIndex)
 {
@@ -75,13 +75,13 @@ managerui.updateEnergyBar = function(team, shipIndex)
 		managerui.energyLevels[i].setTint(0x7ec0ee);
 	}
 
-	for(var i = usedenergy; i < energybar; i++)
+	for(i = usedenergy; i < energybar; i++)
 	{
 		managerui.energyLevels[i].setTint(0xffffff);
 	}
 
 	return true;
-}
+};
 
 managerui.showWeaponDescription = function(weapon)
 {
@@ -89,13 +89,13 @@ managerui.showWeaponDescription = function(weapon)
 
 	this.weaponbox.graphics.setVisible(true);
 	this.weaponbox.text.setVisible(true);
-}
+};
 
 managerui.hideWeaponDescription = function()
 {
 	this.weaponbox.graphics.setVisible(false);
 	this.weaponbox.text.setVisible(false);
-}
+};
 
 managerui.changeWeapon = function(team, shipIndex, weaponIndex, weapon)
 {
@@ -116,11 +116,11 @@ managerui.changeWeapon = function(team, shipIndex, weaponIndex, weapon)
 
 	bayBuildConfig[team][shipIndex].weapons[weaponIndex] = weapon;
 	this.loadship(team, shipIndex);
-}
+};
 
 managerui.preload = function()
 {
-}
+};
 
 managerui.loadship = function(team, index)
 {
@@ -171,10 +171,10 @@ managerui.loadship = function(team, index)
 	{
 
 		// add null option
-		b = new Button(this, {
+		var b = new Button(this, {
 			name: "",
-			x,
-			y,
+			x: x,
+			y: y,
 			scalex: 1,
 			scaley: 1,
 	        spriteid: 'symbols',
@@ -184,9 +184,9 @@ managerui.loadship = function(team, index)
 	        	hover: "cross",
 	        },
 	        clickCallback: function() {
-	        	managerui.changeWeapon(team, index, this.weaponIndex, null)
+	        	managerui.changeWeapon(team, index, this.weaponIndex, null);
 	        }
-		})
+		});
 		b.weaponIndex = weaponIndex;
 
 		if(weapon == null)
@@ -200,15 +200,14 @@ managerui.loadship = function(team, index)
 		for(var availableweapon in weaponConfig)
 		{
 			var aw = weaponConfig[availableweapon];
-			var b;
 
 			// current active weapon
 			if(aw == weapon)
 			{
 				b = new Button(this, {
 					name: "",
-					x,
-					y,
+					x: x,
+					y: y,
 					scalex: 0.08,
 					scaley: 0.08,
 					spriteid: aw.icon,
@@ -216,9 +215,9 @@ managerui.loadship = function(team, index)
 	        			managerui.showWeaponDescription(weapon);
 	        		},
 	        		leaveCallback: function() {
-	        			managerui.hideWeaponDescription()
+	        			managerui.hideWeaponDescription();
 	        		}	
-				})
+				});
 
 				b.sprite.setTint(0x00ff00);
 
@@ -234,21 +233,21 @@ managerui.loadship = function(team, index)
 				// show weapon as option
 				b = new Button(this, {
 					name: "",
-					x,
-					y,
+					x: x,
+					y: y,
 					scalex: 0.08,
 					scaley: 0.08,
 					spriteid: aw.icon,
 					clickCallback: function() {
-	        			managerui.changeWeapon(team, index, this.weaponIndex, this.weapon)
+	        			managerui.changeWeapon(team, index, this.weaponIndex, this.weapon);
 	        		},
 	        		hoverCallback: function() {
 	        			managerui.showWeaponDescription(this.weapon);
 	        		},
 	        		leaveCallback: function() {
-	        			managerui.hideWeaponDescription()
+	        			managerui.hideWeaponDescription();
 	        		}	
-				})
+				});
 				b.weaponIndex = weaponIndex;
 				b.weapon = aw;
 
@@ -268,7 +267,7 @@ managerui.loadship = function(team, index)
 	this.updateEnergyBar(team, index);	
 
 
-}
+};
 
 managerui.create = function()
 {
@@ -314,7 +313,7 @@ managerui.create = function()
 	this.weaponSprites = [];
 
 	this.currentShipIndex = 0;
-	this.currentTeam = "red"
+	this.currentTeam = "red";
 
 
 	// buttons
@@ -326,7 +325,7 @@ managerui.create = function()
 		clickCallback: function() {
 			managerui.commit();
 		}
-	})
+	});
 
 	this.shipselect_left = new Button(this, {
         name: "",
@@ -347,7 +346,7 @@ managerui.create = function()
         	down: "arrowLeft",
         	hover: "arrowLeft",
         }
-    })
+    });
 
    	this.shipselect_right = new Button(this, {
         name: "",
@@ -370,7 +369,7 @@ managerui.create = function()
         	down: "arrowRight",
         	hover: "arrowRight",
         }
-    })
+    });
 
     this.shields_decrease = new Button(this, {
         name: "",
@@ -391,7 +390,7 @@ managerui.create = function()
         	down: "minus",
         	hover: "minus",
         }
-    })
+    });
 
     this.shields_increase = new Button(this, {
         name: "",
@@ -412,7 +411,7 @@ managerui.create = function()
         	down: "plus",
         	hover: "plus",
         }
-    })
+    });
 
     this.energy_decrease = new Button(this, {
         name: "",
@@ -437,7 +436,7 @@ managerui.create = function()
         	down: "minus",
         	hover: "minus",
         }
-    })
+    });
 
     this.energy_increase = new Button(this, {
         name: "",
@@ -459,7 +458,7 @@ managerui.create = function()
         	down: "plus",
         	hover: "plus",
         }
-    })
+    });
 
 
     this.loadship(this.currentTeam, this.currentShipIndex);
@@ -470,7 +469,7 @@ managerui.create = function()
 
 managerui.commit = function() {
 	// load bayBuildConfig into bays:
-	for(bayid in bays[managerui.currentTeam])
+	for(var bayid in bays[managerui.currentTeam])
 	{
 		bays[managerui.currentTeam][bayid].available = [ null ];
 
@@ -490,13 +489,13 @@ managerui.commit = function() {
 
 			// load config into bay
 			bays[managerui.currentTeam][bayid].available.push(configclone);
-		})
+		});
 		
 	}		
 
 	managerui.scene.sleep();
 	battle.scene.start();
-}
+};
 
 managerui.update = function()
 {
@@ -526,5 +525,5 @@ managerui.update = function()
 			this.linegraphics.strokeLineShape(this.lines[i]);
 	}
 	/* ENDS Line visuals */
-}
+};
 

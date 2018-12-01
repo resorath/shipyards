@@ -14,7 +14,7 @@ battleui.create = function() {
         //bays[playercolour][bay].button = this.makeButton(bay, x, 650, this.topLevelClick);
         bays[playercolour][bay].button = new Button(this, {
             name: bay,
-            x, 
+            x: x, 
             y: 650,
             clickCallback: this.topLevelClick
         })
@@ -37,14 +37,14 @@ battleui.topLevelClick = function(button){
         if(availablecraft == null)
             buttonset = new Button(battleui, {
                 name: "Empty",
-                x, 
-                y, 
+                x: x, 
+                y: y, 
                 clickCallback: battleui.secondLevelClick});
         else
             buttonset = new Button(battleui, {
                 name: availablecraft.craft.Name, 
-                x, 
-                y, 
+                x: x, 
+                y:y, 
                 clickCallback: battleui.secondLevelClick});
 
         buttonset.availablecraft = availablecraft;
@@ -78,5 +78,4 @@ battleui.secondLevelClick = function(button)
     })
 
     battleui.activeSubMenu = [];
-
 }
