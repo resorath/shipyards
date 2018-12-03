@@ -1,5 +1,5 @@
 var weapons = {
-}
+};
 
 
 weapons.Weapon = class 
@@ -9,13 +9,13 @@ weapons.Weapon = class
 
     }
 
-    get type() { return "weapon" }
+    get type() { return "weapon"; }
 
-    get x() { return this.origin.x + this.offset.x }
-    get y() { return this.origin.y + this.offset.y }
+    get x() { return this.origin.x + this.offset.x; }
+    get y() { return this.origin.y + this.offset.y; }
 
 
-}
+};
 
 /** 
 Weapon templates 
@@ -39,7 +39,7 @@ weapons.Laser = class extends weapons.Weapon
         });
 
         if(typeof options.offset === 'undefined')
-            options.offset = { x: 0, y: 0 }
+            options.offset = { x: 0, y: 0 };
 
         this.range = options.range;
         this.cooldown = options.cooldown;
@@ -54,7 +54,7 @@ weapons.Laser = class extends weapons.Weapon
         this.audio = {
             laserimpact: this.sceneContext.sound.add('laserimpact', { volume: 0.2}),
             laserfire: this.sceneContext.sound.add('laserfire', {volume: 0.6})
-        }
+        };
 
         this.isFiring = false;
         emitter.on('update', this.update, this);
@@ -95,7 +95,7 @@ weapons.Laser = class extends weapons.Weapon
             this.origin.y, 
             this.target.x,
             this.target.y + rand.realInRange(this.target.body.height / -2, this.target.body.height / 2)
-        )// + (rand.realInRange(-0.04, 0.04));
+        );// + (rand.realInRange(-0.04, 0.04));
 
         //var angle = Phaser.Math.Angle.BetweenPoints(this.origin, this.target) + (rand.realInRange(-0.04, 0.04));
         laser.rotation = angle;
@@ -164,7 +164,7 @@ weapons.Laser = class extends weapons.Weapon
     }
     
 
-}
+};
 
 weapons.Missile = class extends weapons.Weapon
 {
@@ -188,7 +188,7 @@ weapons.Missile = class extends weapons.Weapon
 
     
         if(typeof options.offset === 'undefined')
-            options.offset = { x: 0, y: 0 }
+            options.offset = { x: 0, y: 0 };
 
         this.range = options.range;
         this.cooldown = options.cooldown;
@@ -204,7 +204,7 @@ weapons.Missile = class extends weapons.Weapon
         this.audio = {
             laserimpact: this.sceneContext.sound.add('laserimpact', { volume: 0.2}),
             laserfire: this.sceneContext.sound.add('laserfire', {volume: 0.6})
-        }
+        };
 
         this.isFiring = false;
 
@@ -309,7 +309,7 @@ weapons.Missile = class extends weapons.Weapon
             var localtarget = missile.data.get('target');
             if(localtarget != null && !localtarget.active)
             {
-                localtarget = that.sceneContext.selectBestTarget(missile.data.get('origin'), that.range)
+                localtarget = that.sceneContext.selectBestTarget(missile.data.get('origin'), that.range);
                 missile.data.set('target', localtarget);
             }
             else if(missile != null && localtarget != null)
@@ -322,12 +322,12 @@ weapons.Missile = class extends weapons.Weapon
                 //missile.setVelocity(newvelocity)
                 //that.sceneContext.physics.accelerateTo(missile, localtarget.x, localtarget.y, 60, 300, 300);
             }
-        })
+        });
 
     }
     
 
-}
+};
 
 weapons.Beam = class extends weapons.Weapon
 {
@@ -349,7 +349,7 @@ weapons.Beam = class extends weapons.Weapon
         });
 
         if(typeof options.offset === 'undefined')
-            options.offset = { x: 0, y: 0 }
+            options.offset = { x: 0, y: 0 };
 
         this.range = options.range;
         this.cooldown = options.cooldown;
@@ -357,14 +357,14 @@ weapons.Beam = class extends weapons.Weapon
         this.lifetime = options.lifetime;
         this.damage = options.damage;
         this.offset = options.offset;
-        this.nextFireShot = sceneContext.round//@DISABLERANDOM Phaser.Math.Between(-3, 3)
+        this.nextFireShot = sceneContext.round;//@DISABLERANDOM Phaser.Math.Between(-3, 3)
 
         this.beams = sceneContext.physics.add.group();
 
         this.audio = {
             laserimpact: this.sceneContext.sound.add('laserimpact', { volume: 0.2}),
             laserfire: this.sceneContext.sound.add('laserfire', {volume: 0.6})
-        }
+        };
 
         this.isFiring = false;
 
@@ -402,7 +402,7 @@ weapons.Beam = class extends weapons.Weapon
             },
 
             ]
-        })
+        });
 
         var looptween = null;
         var looptweenevent = this.sceneContext.time.addEvent({delay: warmup, callback: function() {
@@ -432,14 +432,14 @@ weapons.Beam = class extends weapons.Weapon
                 },
 
                 ]
-            })
+            });
 
 
-        }, callbackScope: this})
+        }, callbackScope: this});
 
         this.sceneContext.time.addEvent({delay: warmup + runtime, callback: function() {
             this.destroymuzzleglows();
-        }, callbackScope: this})
+        }, callbackScope: this});
 
         var that = this;
         this.destroymuzzleglows = function()
@@ -457,9 +457,9 @@ weapons.Beam = class extends weapons.Weapon
                     scaleY: 0.1,
                     alpha: 0
                 }]
-            })
+            });
 
-        }
+        };
     }
 
     destroy()
@@ -471,7 +471,7 @@ weapons.Beam = class extends weapons.Weapon
             this.destroymuzzleglows();
         this.beams.children.iterate(function(beam){
             beam.destroy();
-        })
+        });
         this.origin = null;
     }
 
@@ -497,7 +497,7 @@ weapons.Beam = class extends weapons.Weapon
         // stop generating particles on muzzle glow 1 second later
         this.sceneContext.time.addEvent({delay: 1000, callback: function() {
             this.beamsuck.emitters.first.on = false;
-        }, callbackScope: this})
+        }, callbackScope: this});
 
         // start the firing sequence
         this.sceneContext.time.addEvent({delay: 2500, callback: function() {
@@ -531,7 +531,7 @@ weapons.Beam = class extends weapons.Weapon
             	this.target.y + beam.data.get('target-offset-y'));
             beam.setScale(1, distance);
 
-            var angle = Phaser.Math.Angle.Between(beam.x, beam.y, this.target.x + beam.data.get('target-offset-x'), this.target.y + beam.data.get('target-offset-y'))+ (Math.PI * 0.5);;
+            var angle = Phaser.Math.Angle.Between(beam.x, beam.y, this.target.x + beam.data.get('target-offset-x'), this.target.y + beam.data.get('target-offset-y'))+ (Math.PI * 0.5);
 
             beam.setVelocity(this.origin.body.velocity.x, this.origin.body.velocity.y);        
 
@@ -566,7 +566,7 @@ weapons.Beam = class extends weapons.Weapon
         	// if not attached, destroy all beams
         	 this.beams.children.iterate(function(beam) {
         	 	beam.destroy();
-        	 })
+        	 });
 
             return;
         }
@@ -622,7 +622,7 @@ weapons.Beam = class extends weapons.Weapon
             if(beam != null && localtarget != null)
             {
             	// update beam facing
-                var newangle = Phaser.Math.Angle.Between(beam.x, beam.y, localtarget.x + beam.data.get('target-offset-x'), localtarget.y + beam.data.get('target-offset-y'))+ (Math.PI * 0.5);;
+                var newangle = Phaser.Math.Angle.Between(beam.x, beam.y, localtarget.x + beam.data.get('target-offset-x'), localtarget.y + beam.data.get('target-offset-y'))+ (Math.PI * 0.5);
                 beam.rotation = newangle;
 
                 // update beam length
@@ -641,11 +641,9 @@ weapons.Beam = class extends weapons.Weapon
                 that.impact(beam, localtarget, round);
           
             }
-        })
+        });
 
 
     }
-    
-
-}
+};
 
