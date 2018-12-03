@@ -1,4 +1,4 @@
-var craft = {}
+var craft = {};
 
 /** 
 Craft templates 
@@ -13,10 +13,10 @@ craft.Ship = class
 
     }
 
-    get type() { return "ship" }
+    get type() { return "ship"; }
 
-    static get Name() { return "Generic Ship" }
-    static get BuildTime() { return 10 }
+    static get Name() { return "Generic Ship"; }
+    static get BuildTime() { return 10; }
 
     applyOptions(options)
     {
@@ -36,7 +36,7 @@ craft.Ship = class
         this.sprite.setScale(options.scale);
         this.sprite.name = options.name;
         this.sprite.x = options.X;
-        this.sprite.y = this.Y
+        this.sprite.y = this.Y;
 
         this.sprite.rotation += options.direction;
         this.sprite.setVelocityX(options.velocity);
@@ -48,8 +48,8 @@ craft.Ship = class
         this.weapons.forEach(function(weapon){
             if(weapon == null)
                 return;
-            weapon.origin = that.sprite
-        })
+            weapon.origin = that.sprite;
+        });
         
     }
 
@@ -86,7 +86,7 @@ craft.Ship = class
 
 
 
-}
+};
 
 
 
@@ -106,7 +106,7 @@ craft.Shipyard = class extends craft.Ship
             weapons: [],
             X: 1200, 
             health: 10000
-        })
+        });
 
         this.sprite = ships[this.team].create(0, 0, 'shipyard');
 
@@ -119,8 +119,8 @@ craft.Shipyard = class extends craft.Ship
 
     }
 
-    static get Name() { return "Shipyard" }
-    static get BuildTime() { return 10000 }
+    static get Name() { return "Shipyard"; }
+    static get BuildTime() { return 10000; }
 
     destroy()
     {
@@ -130,11 +130,11 @@ craft.Shipyard = class extends craft.Ship
         {
             this.weapons.forEach(function(weapon){
                 weapon.destroy();
-            })
+            });
         }
         this.weapons = null;
 
-        battle.cameras.main.pan(this.sprite.x, this.sprite.y, 2000)
+        battle.cameras.main.pan(this.sprite.x, this.sprite.y, 2000);
         battle.cameras.main.zoomTo(3, 3000);
 
         //this.sprite.disableBody(true, true);
@@ -208,7 +208,7 @@ craft.Shipyard = class extends craft.Ship
             var that = this;
             this.emitters.forEach(function(e) {
                 e.explode(500, e.x.propertyValue, e.y.propertyValue);
-            })
+            });
 
             this.sprite.disableBody(true, true);
 
@@ -217,7 +217,7 @@ craft.Shipyard = class extends craft.Ship
 
     }
 
-}
+};
 
 
 craft.Fighter = class extends craft.Ship
@@ -230,7 +230,7 @@ craft.Fighter = class extends craft.Ship
         {
             options.weapons = [
                 new weapons.Laser(sceneContext, { range: 400, cooldown: 15, lifetime: 1000 })
-            ]
+            ];
         }
 
         options = setDefaults(options, {
@@ -241,7 +241,7 @@ craft.Fighter = class extends craft.Ship
             weapons: [],
             X: 1200, 
             health: 30
-        })
+        });
 
         this.sprite = ships[this.team].create(0, 0, 'fighter');
 
@@ -250,8 +250,8 @@ craft.Fighter = class extends craft.Ship
         emitter.on('update', this.update, this);
     }
 
-    static get Name() { return "Fighter" }
-    static get BuildTime() { return 1 }
+    static get Name() { return "Fighter"; }
+    static get BuildTime() { return 1; }
 
     update(round)
     {
@@ -265,7 +265,7 @@ craft.Fighter = class extends craft.Ship
         {
             this.weapons.forEach(function(weapon){
                 weapon.destroy();
-            })
+            });
         }
         this.weapons = null;
 
@@ -292,12 +292,12 @@ craft.Fighter = class extends craft.Ship
 
         var that = this;
         this.sceneContext.time.addEvent({delay: 500, callback: function() {
-            emitter.explode(100, that.sprite.x, that.sprite.y)
+            emitter.explode(100, that.sprite.x, that.sprite.y);
         }});
 
     }
 
-}
+};
 
 craft.Corvette = class extends craft.Ship
 {
@@ -315,7 +315,7 @@ craft.Corvette = class extends craft.Ship
                 new weapons.Laser(sceneContext, { range: 300, cooldown: 15, lifetime: 1000, offset: {x: -10, y: 0} }),
                 new weapons.Laser(sceneContext, { range: 300, cooldown: 15, lifetime: 1000, offset: {x: 20, y: 0} }),
                 new weapons.Missile(sceneContext, {})
-            ]
+            ];
         }
 
         options = setDefaults(options, {
@@ -326,7 +326,7 @@ craft.Corvette = class extends craft.Ship
             weapons: [],
             X: 1200, 
             health: 500
-        })
+        });
 
         this.sprite = ships[this.team].create(0, 0, 'corvette');
 
@@ -336,8 +336,8 @@ craft.Corvette = class extends craft.Ship
 
     }
 
-    static get Name() { return "Corvette" }
-    static get BuildTime() { return 5 }
+    static get Name() { return "Corvette"; }
+    static get BuildTime() { return 5; }
 
     update(round)
     {
@@ -354,7 +354,7 @@ craft.Corvette = class extends craft.Ship
         {
             this.weapons.forEach(function(weapon){
                 weapon.destroy();
-            })
+            });
         }
         this.weapons = null;
 
@@ -381,9 +381,9 @@ craft.Corvette = class extends craft.Ship
 
         var that = this;
         this.sceneContext.time.addEvent({delay: 500, callback: function() {
-            emitter.explode(100, that.sprite.x, that.sprite.y)
+            emitter.explode(100, that.sprite.x, that.sprite.y);
         }});
 
     }
 
-}
+};
