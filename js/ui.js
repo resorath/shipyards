@@ -15,16 +15,16 @@ class Button
 				down: 2,
 				hover: 0
 			}
-		})
+		});
 
 		if(typeof options.leaveCallback === 'undefined')
-			options.leaveCallback = function() {}
+			options.leaveCallback = function() {};
 
 		if(typeof options.clickCallback === 'undefined')
-			options.clickCallback = function() {}
+			options.clickCallback = function() {};
 
 		if(typeof options.hoverCallback === 'undefined')
-			options.hoverCallback = function() {}
+			options.hoverCallback = function() {};
 
 		this.x = options.x;
 		this.y = options.y;
