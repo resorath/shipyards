@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <title>Shipyards</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="lib/phaser.js"></script>
+    <script src="lib/phaser.min.js"></script>
     <style type="text/css">
         body {
             margin: 0;
@@ -45,8 +45,13 @@
 
     var config = {
         type: Phaser.AUTO,
-        width: 1400,
-        height: 700,
+    //    width: 1400,
+    //    height: 700,
+        scale: {
+            mode: Phaser.Scale.FIT,
+            width: 1400,
+            height: 700
+        },
         physics: {
             default: 'arcade',
             arcade: {
@@ -418,7 +423,7 @@
         return Object.assign({}, defaults, options);
     }
 
-    function resize() {
+    /*function resize() {
         var canvas = document.querySelector("canvas");
         var windowWidth = window.innerWidth;
         var windowHeight = window.innerHeight;
@@ -438,7 +443,7 @@
     window.onload = function() {
         resize();
     }
-    window.addEventListener("resize", resize, false);
+    window.addEventListener("resize", resize, false);*/
 
 </script>
 
