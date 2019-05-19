@@ -23,6 +23,7 @@ craft.Ship = class
         // generic attributes
         this.health = options.health;
         this.weapons = options.weapons;
+        this.shoesize = options.shoesize; // S, M, L, XL
 
         // team specific modifiers
         options.direction = teammodifiers[this.team].direction;
@@ -54,9 +55,11 @@ craft.Ship = class
     }
 
 
-    damage(amount)
+    damage(amount, damageMods = {S: 1, M: 1, L: 1, XL: 1})
     {
-        this.health -= amount;
+        var modifiedamount = amount * damageMods[this.shoesize];
+
+        this.health -= modifiedamount;
 
         if(this.health <= 0)
         {
@@ -105,7 +108,8 @@ craft.Shipyard = class extends craft.Ship
             name: '',
             weapons: [],
             X: 1200, 
-            health: 10000
+            health: 10000,
+            shoesize: 'XL'
         });
 
         this.sprite = ships[this.team].create(0, 0, 'shipyard');
@@ -240,7 +244,8 @@ craft.Fighter = class extends craft.Ship
             name: '',
             weapons: [],
             X: 1200, 
-            health: 30
+            health: 30,
+            shoesize: 'S'
         });
 
         this.sprite = ships[this.team].create(0, 0, 'fighter');
@@ -325,7 +330,8 @@ craft.Corvette = class extends craft.Ship
             name: '',
             weapons: [],
             X: 1200, 
-            health: 500
+            health: 500,
+            shoesize: "M"
         });
 
         this.sprite = ships[this.team].create(0, 0, 'corvette');

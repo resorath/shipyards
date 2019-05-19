@@ -138,28 +138,57 @@ battle.getHostileTeams = function(target)
 sprite: for ships
 weapon: for weapons
 */
-battle.selectBestTarget = function(origin, range)
+battle.selectBestTarget = function(origin, range, targetPriority = null)
 {
     var hostileTeams = this.getHostileTeams(origin);
 
     var closestship_distance = range;
     var closestship_ship = null;
+    var alltargets = [];
+    var valuabletargets = [];
 
+    // load all targets
     hostileTeams.forEach(function(team) {
         ships[team].children.iterate(function(ship) {
-            
-            // pick best ship in range?
-            // for now just pick closest ship in range
-            var distance = Phaser.Math.Distance.Between(origin.x, origin.y, ship.x, ship.y);
+            alltargets.push(ship);
+        
+        });
+    }); 
 
+    if(targetPriority != null)
+    {
+        // go through priorities, and pick all targets of highest priority in range
+       alltargets.some(function(ship) {
+            targetPriority.forEach(function (priority){
+                if(ship.shoesize == priority)
+                    valuabletargets.push(ship);
+
+            });     
+            // effectively "break if valuabletargets got a target"
+            return valuabletargets.length > 0;
+        });
+    }
+    else
+    {
+        // if valuabletargets is not available, pick all targets 
+        valuabletargets = alltargets;
+    }
+
+
+
+    valuabletargets.forEach(function(ship) {            
+        // pick best ship in range from the targets chosen above
+        var distance = Phaser.Math.Distance.Between(origin.x, origin.y, ship.x, ship.y);
+
+        if(distance <= range)
+        {
             // check if distance is less than either 1) the range of the weapon or 2) the previous closest ship which must be closer than range
             if(distance < closestship_distance)
             {
                 closestship_distance = distance;
                 closestship_ship = ship;
             }
-
-        });
+        }
 
     });
 

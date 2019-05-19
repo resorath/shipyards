@@ -46,6 +46,16 @@ weapons.Laser = class extends weapons.Weapon
         this.velocity = options.velocity;
         this.lifetime = options.lifetime;
         this.damage = options.damage;
+
+        this.damageMods = setDefaults(options.damageMods, {
+            S: 1,
+            M: 1,
+            L: 1,
+            XL: 1
+        });
+
+        this.targetPriority = setDefault(options.targetPriority, ['S', 'M', 'L', 'XL']);
+
         this.offset = options.offset;
         this.nextFireShot = sceneContext.round;
 
@@ -55,6 +65,7 @@ weapons.Laser = class extends weapons.Weapon
             laserimpact: this.sceneContext.sound.add('laserimpact', { volume: 0.2}),
             laserfire: this.sceneContext.sound.add('laserfire', {volume: 0.6})
         };
+
 
         this.isFiring = false;
         emitter.on('update', this.update, this);
@@ -129,7 +140,7 @@ weapons.Laser = class extends weapons.Weapon
 
         this.audio.laserimpact.play();
 
-        target.data.get('parent').damage(this.damage);
+        target.data.get('parent').damage(this.damage, this.damageMods);
     }
 
     update(round)
@@ -139,7 +150,7 @@ weapons.Laser = class extends weapons.Weapon
             return;
 
         // returns null if no targets are in range
-        this.target = this.sceneContext.selectBestTarget(this, this.range);
+        this.target = this.sceneContext.selectBestTarget(this, this.range, this.targetPriority);
 
         if(this.target != null && !this.isFiring)
         {
@@ -195,6 +206,16 @@ weapons.Missile = class extends weapons.Weapon
         this.velocity = options.velocity;
         this.lifetime = options.lifetime;
         this.damage = options.damage;
+
+        this.damageMods = setDefaults(options.damageMods, {
+            S: 1,
+            M: 1,
+            L: 1,
+            XL: 1
+        });
+
+        this.targetPriority = setDefault(options.targetPriority, ['M', 'S', 'L', 'XL']);
+
         this.offset = options.offset;
         this.nextFireShot = sceneContext.round;
 
@@ -272,7 +293,7 @@ weapons.Missile = class extends weapons.Weapon
         missile.destroy();
         this.audio.laserimpact.play();
 
-        target.data.get('parent').damage(this.damage);
+        target.data.get('parent').damage(this.damage, this.damageMods);
     }
 
     update(round)
@@ -282,7 +303,7 @@ weapons.Missile = class extends weapons.Weapon
             return;
 
         // returns null if no targets are in range
-        this.target = this.sceneContext.selectBestTarget(this, this.range);
+        this.target = this.sceneContext.selectBestTarget(this, this.range, this.targetPriority);
 
         if(this.target != null && !this.isFiring)
         {
@@ -309,7 +330,7 @@ weapons.Missile = class extends weapons.Weapon
             var localtarget = missile.data.get('target');
             if(localtarget != null && !localtarget.active)
             {
-                localtarget = that.sceneContext.selectBestTarget(missile.data.get('origin'), that.range);
+                localtarget = that.sceneContext.selectBestTarget(missile.data.get('origin'), that.range, that.targetPriority);
                 missile.data.set('target', localtarget);
             }
             else if(missile != null && localtarget != null)
@@ -356,6 +377,16 @@ weapons.Beam = class extends weapons.Weapon
         this.velocity = options.velocity;
         this.lifetime = options.lifetime;
         this.damage = options.damage;
+
+        this.damageMods = setDefaults(options.damageMods, {
+            S: 0.1,
+            M: 0.5,
+            L: 1,
+            XL: 1
+        });
+
+        this.targetPriority = setDefault(options.targetPriority, ['L', 'XL', 'M', 'S']);
+
         this.offset = options.offset;
         this.nextFireShot = sceneContext.round;//@DISABLERANDOM Phaser.Math.Between(-3, 3)
 
@@ -555,7 +586,7 @@ weapons.Beam = class extends weapons.Weapon
         		target.y + beam.data.get('target-offset-y') + target.body.velocity.y);
         //missile.destroy();
         //this.audio.laserimpact.play();
-        target.data.get('parent').damage(this.damage);
+        target.data.get('parent').damage(this.damage, this.damageMods);
     }
 
     update(round)
@@ -572,7 +603,7 @@ weapons.Beam = class extends weapons.Weapon
         }
 
         // returns null if no targets are in range
-        this.target = this.sceneContext.selectBestTarget(this, this.range);
+        this.target = this.sceneContext.selectBestTarget(this, this.range, this.targetPriority);
 
         // update beam emitter
         if(typeof this.beamsuck !== 'undefined')

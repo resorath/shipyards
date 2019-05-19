@@ -422,6 +422,12 @@
         return Object.assign({}, defaults, options);
     }
 
+    function setDefault(option, thedefault) {
+        if(option === 'undefined')
+            return thedefault;
+        return option;
+    }
+
     /*function resize() {
         var canvas = document.querySelector("canvas");
         var windowWidth = window.innerWidth;
