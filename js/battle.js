@@ -138,7 +138,7 @@ battle.getHostileTeams = function(target)
 sprite: for ships
 weapon: for weapons
 */
-battle.selectBestTarget = function(origin, range, targetPriority = null)
+battle.selectBestTarget = function(origin, range, targetPriority)
 {
     var hostileTeams = this.getHostileTeams(origin);
 
@@ -155,12 +155,14 @@ battle.selectBestTarget = function(origin, range, targetPriority = null)
         });
     }); 
 
-    if(targetPriority != null)
+    if(typeof targetPriority !== 'undefined')
     {
         // go through priorities, and pick all targets of highest priority in range
        alltargets.some(function(ship) {
             targetPriority.forEach(function (priority){
-                if(ship.shoesize == priority)
+                var distance = Phaser.Math.Distance.Between(origin.x, origin.y, ship.x, ship.y);
+
+                if(ship.data.get('parent').shoesize == priority && distance <= range)
                     valuabletargets.push(ship);
 
             });     

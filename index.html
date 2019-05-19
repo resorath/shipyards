@@ -194,7 +194,11 @@
         "MX-01 Missile":
         {
             weapon: weapons.Missile,
-            options: { range: 1000, cooldown: 300, lifetime: 5000 },
+            options: { 
+                range: 1000, 
+                cooldown: 300, 
+                lifetime: 5000,
+            },
             energy: 1,
             icon: 'icon-missile',
             fits: [ craft.Corvette ],
@@ -354,7 +358,16 @@
                 available: [] 
             },
             "bay 2": { 
-                selected: null, 
+                selected:                   
+                {
+                    craft: craft.Corvette,
+                    weapons: [ 
+                        { 
+                            weapon: weapons.Laser, 
+                            options: { range: 400, cooldown: 15, lifetime: 1000 }
+                        }
+                    ],
+                },
                 button: undefined,
                 buildMultiplyer: 1.5,
                 xRange: { min: 280, max: 380},
@@ -423,7 +436,7 @@
     }
 
     function setDefault(option, thedefault) {
-        if(option === 'undefined')
+        if(typeof option === 'undefined')
             return thedefault;
         return option;
     }
